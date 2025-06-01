@@ -1,0 +1,11 @@
+#+title: Dotfiles
+
+* Intro
+* Env vars
+#+begin_src sh :tangle init.sh
+cp -n .env_example .env
+source .env
+#+end_src
+* Guix
+guix home reconfigure home.scm
+guix home container home.scm

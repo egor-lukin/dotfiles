@@ -1,0 +1,9 @@
+dark-mode: false
+auto-commits: false
+watch-files: true
+editor: 'emacsclient -r'
+model: 'gpt-4.1'
+stream: False
+alias:
+  - "s7:claude-3-7-sonnet-latest"
+  - "4o:chatgpt-4o-latest"
