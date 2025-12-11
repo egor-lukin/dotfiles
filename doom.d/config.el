@@ -454,9 +454,10 @@ regardless of whether the current buffer is in `eww-mode'."
 
 (setq org-agenda-overriding-columns-format "%100ITEM  %TODO %7EFFORT %PRIORITY     100%TAGS")
 
-;; PRDs flow
-(defun prd/create-prd-file ()
-  "Create a PRD org file from the current org header, prompt for directory, and insert a link."
+;; Notes / GTD
+
+(defun gtd/create-task-file ()
+  "Create a task file from the current org header, prompt for directory, and insert a link."
   (interactive)
   (unless (derived-mode-p 'org-mode)
     (error "Not in org-mode"))
@@ -464,23 +465,26 @@ regardless of whether the current buffer is in `eww-mode'."
     ;; Find the current org heading
     (org-back-to-heading t)
     (let* ((header (nth 4 (org-heading-components)))
-           (dir "~/org/prd")
+           (dir "~/org/tasks")
            (timestamp (format-time-string "%Y%m%d%H%M%S"))
            (sanitized-header (replace-regexp-in-string "[/\\?%*:|\"<> ]" "_" header))
            (filename (concat dir "/" timestamp "-" sanitized-header ".org")))
       ;; Create the new file with a header
       (with-temp-file filename
         (insert (format "#+title: %s\n\n" header)))
+      (org-set-property "LINK" (format "file:%s" filename))
       ;; Insert a link to the new file in the current heading's content
       (org-end-of-meta-data t)
-      (insert (format "\n[[file:%s][PRD: %s]]\n" filename header))
+      (insert (format "\n[[file:%s][Task: %s]]\n" filename header))
       ;; Optionally, open the new file
       (find-file-other-window filename))))
-
 
 (map! :leader
       :prefix "p"
       :desc "Toggle between implementation and test" "t" #'projectile-toggle-between-implementation-and-test)
+
+;; (after! projectile
+;;   (add-to-list 'projectile-test-suffix-alist '(("app/services/" . ("spec/services/")))))
 
 (map! :leader
       :prefix "e"
