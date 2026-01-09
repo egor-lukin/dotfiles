@@ -1,21 +1,10 @@
-# load env vars
-export $(cat ~/dotfiles/.env | xargs)
-
-  # echo env/$key | xargs -I % export "$key=$(pass show "%")"
-# for key in $(pass ls env | grep -v '^env$' | awk '{print $2}'); do
-#   echo env/$key | xargs -I % pass show "%" | echo "$key=$(pass show "%")"
-# done
-
-# for key in $(pass ls env | grep -v '^env$' | awk '{print $2}'); do
-#   echo "$key=$(pass show env/$key)"
-# done
-
-export OPENAI_API_KEY=$(pass show env/OPENAI_API_KEY)
-export GEMINI_API_KEY=$(pass show env/GEMINI_API_KEY)
-export ANTHROPIC_API_KEY=$(pass show env/ANTHROPIC_API_KEY)
-
-
 export EDITOR="emacsclient -r"
+
+export LD_LIBRARY_PATH="$HOME/.guix-home/profile/lib"
+export GUIX_PROFILE="/home/azx/.guix-profile"
+. "$GUIX_PROFILE/etc/profile"
+
+export PATH="$HOME/.npm-global/bin:$PATH"
 
 #git
 alias g='git'
@@ -68,12 +57,12 @@ export PATH="/home/azx/Projects:${PATH}"
 export PATH=$HOME/.local/bin:$PATH
 export PATH=~/.npm-global/bin:$PATH
 
-export GEM_HOME="$HOME/.gems"
-export GEM_PATH="$GEM_HOME:/var/lib/ruby/gems/3.0"
+# export GEM_HOME="$HOME/.gems"
+# export GEM_PATH="$GEM_HOME:/var/lib/ruby/gems/3.0"
 
-export PATH=/usr/local/bin/rvm/bin:$PATH
+# export PATH=/usr/local/bin/rvm/bin:$PATH
 
-export PATH=$GEM_HOME/bin:$PATH
+# export PATH=$GEM_HOME/bin:$PATH
 
 export FLYCTL_INSTALL="/home/azx/.fly"
 export PATH="$FLYCTL_INSTALL/bin:$PATH"
@@ -81,16 +70,16 @@ export PATH="$FLYCTL_INSTALL/bin:$PATH"
 export PATH=~/.fly/bin:$PATH
 export KUBECONFIG=$HOME/.kube/config
 
-export PATH=/home/azx/.gems/bin:$PATH
+# export PATH=/home/azx/.gems/bin:$PATH
 
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
 export TERM=xterm-256color
 
-# asdf
-. $HOME/.asdf/asdf.sh
-. $HOME/.asdf/completions/asdf.bash
+# # asdf
+# . $HOME/.asdf/asdf.sh
+# . $HOME/.asdf/completions/asdf.bash
 
 # Automatically added by the Guix install script.
 if [ -n "$GUIX_ENVIRONMENT" ]; then
@@ -98,3 +87,6 @@ if [ -n "$GUIX_ENVIRONMENT" ]; then
         PS1="${BASH_REMATCH[1]} [env]\\\$ "
     fi
 fi
+
+ export PATH="$HOME/.guix-home/profile/bin:$PATH"
+ alias python="python3"

@@ -15,25 +15,22 @@
 (package! company-tabnine)
 (package! graphviz-dot-mode)
 (package! kubernetes-evil)
-;; (package! org-ql :recipe (:repo "LukinEgor/org-ql" :branch "file-dynamic-blocks"))
 (package! org-ql)
 (package! org-mind-map)
 (package! sound-wav)
 (package! cider)
-;; (package! helm-dash)
 (package! hledger-mode)
-(unpin! visual-fill-column)
 (package! org-recoll :recipe (:repo "alraban/org-recoll"))
 (package! ranger)
 (package! ereader)
 (package! nov :recipe (:repo "https://depp.brause.cc/nov.el.git"))
 
-(package! telega :pin "ab03a5ead11e9a0abc96cae6025cd87135a71a57")
+(package! telega)
 (package! magit)
 (package! magit-section)
 
 ;; (package! nmcli-wifi :recipe (:repo "https://github.com/LukinEgor/nmcli-wifi"))
-(package! whisper :recipe (:repo "https://github.com/natrys/whisper.el.git"))
+(package! whisper :recipe (:repo "natrys/whisper.el"))
 
 (package! helm-tramp)
 (package! openwith)
@@ -48,9 +45,9 @@
            :files ("*.el" "README.md" "snippets")))
 
 (package! ellama)
-(package! gptel)
-;; (package! aider
-;;   :recipe (:host github :repo "tninja/aider.el" :files ("aider.el")))
+(package! gptel
+  :recipe (:repo "karthink/gptel"
+           :branch "master" ))
 
 (package! org-fc
   :recipe (:host github
@@ -60,5 +57,11 @@
 (package! org-drill)
 
 (package! aidermacs
+  :pin "8ce3d8c"
   :recipe (:host github
            :repo "MatthewZMD/aidermacs"))
+
+(package! ob-gptel
+  :recipe (:host github
+           :branch "main"
+           :repo "jwiegley/ob-gptel"))

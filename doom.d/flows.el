@@ -31,22 +31,34 @@
   (with-current-buffer (find-file-noselect daily-note-file)
     (goto-char (point-min))
     (re-search-forward "^\\* buffer" nil t)
-    (insert (concat "\n*" subtree "\n"))
+    (insert (concat "\n" subtree "\n"))
     (save-buffer)))
 
-;; (defun test-my/map-check-ins ()
-;;   "Test for `my/map-check-ins` function."
-;;   (let ((test-buffer (generate-new-buffer "*test-check-in*"))
-;;         (called nil)
-;;         (expected-file (my/daily-note-filename "2025-04-10")))
-;;     (with-current-buffer test-buffer
-;;       (org-mode)  ;; Ensure the buffer is in Org-mode
-;;       (insert "* Inbox\n** check-in\n:PROPERTIES:\n:CREATED: 2025-04-10\n:END:\nSome
-;; content here\n")
-;;       (goto-char (point-min))
-;;       (my/map-check-ins
-;;        (lambda (daily-note-file)
-;;          (setq called t)
-;;          (cl-assert (string= daily-note-file expected-file))))
-;;       (cl-assert called))
-;;     (kill-buffer test-buffer)))
+(defun my/org-header-summarize-and-insert ()
+  "Summarize the URL in org-mode header at point and insert the summary asynchronously."
+  (interactive)
+  (let* ((heading (org-get-heading t t t t))
+         (url heading)
+         (summary-buffer (generate-new-buffer "*gptel-summary*")))
+    (message url)
+    (when (and url (not (string-empty-p url)))
+      (message "when")
+      (eww-browse-url url)
+      (with-current-buffer "eww"
+        (let ((content (buffer-string)))
+          (gptel-request
+              content  ; Use the EWW content as the prompt
+            :buffer summary-buffer
+            :callback (lambda (response _info)
+                        (with-current-buffer (org-get-current-buffer)
+                          (save-excursion
+                            (org-beginning-of-line)
+                            (insert (format "\n\"%s\"" response)))))))))))
+
+
+(defun my/org-agenda-list-as-string ()
+  "Return the org-agenda-list output as a string."
+  (with-temp-buffer
+    (let ((standard-output (current-buffer)))
+      (org-agenda-list nil (format-time-string "%Y-%m-%d") 'day)
+      (buffer-string))))
