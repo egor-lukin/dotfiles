@@ -6,7 +6,7 @@
 (setq workspace-dir "~/dotfiles/"
       projects-dir "~/dev/"
       org-dir "~/org/"
-      gtd-dir (concat org-dir "/gtd/")
+      gtd-dir (concat org-dir "/roam/gtd/")
       gtd/files '("gtd.org" "backlog.org" "archieved.org")
       emacs-dir (concat workspace-dir "doom.d/")
       user-full-name "Egor Lukin"
@@ -151,6 +151,25 @@ If none are selected, symmetric encryption will be performed.")))
       :prefix "b"
       :desc "polybar-current-clock-line" "c" #'polybar-current-clock-line)
 
+(defun gtd/org-file-has-project-tag-p (file)
+  "Return non-nil if FILE contains #+FILETAGS with :project:."
+  (with-temp-buffer
+    (insert-file-contents file nil 0 5000) ; read first 5000 chars, enough for header
+    (goto-char (point-min))
+    (re-search-forward "^#\\+FILETAGS:.*:project:" nil t)))
+
+(setq denote-directory-files "~/org/roam/literate")
+(defun gtd/project-files ()
+  "Return list of org files under DIRECTORY with :project: filetag."
+  (let ((files (directory-files-recursively denote-directory-files "\\.org$"))
+        result)
+    (dolist (file files result)
+      (when (gtd/org-file-has-project-tag-p file)
+        (push file result)))))
+
+;; (gtd/project-files)
+;; (gtd/all-files)
+
 (defun gtd/all-files ()
   (append
    (mapcar (lambda (f) (concat gtd-dir f))
@@ -159,15 +178,16 @@ If none are selected, symmetric encryption will be performed.")))
                     (seq-remove (lambda (f) (member f '("." "..")))
                                 (directory-files (concat gtd-dir "archived"))))
             gtd/files))
-   (file-expand-wildcards "~/org/roam/literate/*")))
+   (gtd/project-files)))
 
 (after! org
   (require 'org-habit)
   (setq org-directory org-dir
         org-log-into-drawer t
         org-download-dir (concat org-dir "screenshots/")
-        org-archive-location (concat gtd-dir "archieved.org::")
-        org-agenda-files (list gtd-dir (concat org-dir "roam/literate"))
+        ;; org-archive-location (concat gtd-dir "archieved.org::")
+        org-agenda-files (gtd/all-files)
+        ;; org-agenda-files (list gtd-dir (concat org-dir "roam/literate"))
         org-refile-targets '((org-agenda-files :maxlevel . 2))
         org-todo-keywords
         '((sequence "TODO" "IN-PROGRESS" "WAIT" "|" "DONE" "CLOSED"))
@@ -355,8 +375,7 @@ regardless of whether the current buffer is in `eww-mode'."
 
 
  ;; Ledger
-(require 'openwith)
-(setq hledger-jfile "~/org/finances/ledger.journal")
+(setq hledger-jfile "~/org/roam/finances/ledger.journal")
 
 
  ;; Dash docsets
