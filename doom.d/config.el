@@ -6,7 +6,7 @@
 (setq workspace-dir "~/dotfiles/"
       projects-dir "~/dev/"
       org-dir "~/org/"
-      gtd-dir (concat org-dir "/roam/gtd/")
+      gtd-dir (concat org-dir "roam/gtd/")
       gtd/files '("gtd.org" "backlog.org" "archieved.org")
       emacs-dir (concat workspace-dir "doom.d/")
       user-full-name "Egor Lukin"
@@ -254,7 +254,7 @@ If none are selected, symmetric encryption will be performed.")))
 (after! org
   (setq org-capture-templates
         '(("t" "Todo" entry
-           (file+headline "gtd/gtd.org" "Inbox")
+           (file+headline "roam/gtd/gtd.org" "Inbox")
            (file "templates/todo.org"))
           ("e" "English word" entry
            (file+headline "anki/english_words.org" "Backlog")
