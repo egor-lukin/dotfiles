@@ -152,15 +152,14 @@ If none are selected, symmetric encryption will be performed.")))
       :desc "polybar-current-clock-line" "c" #'polybar-current-clock-line)
 
 (defun gtd/all-files ()
-  (mapcar
-   (lambda (f) (concat gtd-dir f))
-   (append
-    (mapcar
-     (lambda (f) (concat "archived/" f))
-     (seq-filter
-      (lambda (f) (not(member f '("." ".."))))
-      (directory-files (concat gtd-dir "archived"))))
-    gtd/files)))
+  (append
+   (mapcar (lambda (f) (concat gtd-dir f))
+           (append
+            (mapcar (lambda (f) (concat "archived/" f))
+                    (seq-remove (lambda (f) (member f '("." "..")))
+                                (directory-files (concat gtd-dir "archived"))))
+            gtd/files))
+   (file-expand-wildcards "~/org/roam/literate/*")))
 
 (after! org
   (require 'org-habit)
