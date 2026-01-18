@@ -1,2 +1,4 @@
 .env
 .aider*
+emacs.d/elpa/
+emacs.d/eln-cache/
