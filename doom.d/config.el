@@ -463,7 +463,8 @@ regardless of whether the current buffer is in `eww-mode'."
 (map! :leader
       :prefix "["
       :desc "rspec-toggle-spec-and-target" "t" #'rspec-toggle-spec-and-target
-      :desc "rspec-verify" "a" #'rspec-verify
+      :desc "rspec-verify" "v" #'rspec-verify
+      :desc "rspec-verify-all" "a" #'rspec-verify-all
       :desc "rspec-rerun" "r" #'rspec-rerun
       :desc "rspec-verify-single" "s" #'rspec-verify-single)
 
