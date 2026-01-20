@@ -550,3 +550,11 @@ regardless of whether the current buffer is in `eww-mode'."
           (rename-buffer new-name)
           (set-visited-file-name new-name)
           (set-buffer-modified-p nil))))))
+
+
+ ;; World Clock
+(setq world-clock-list
+      '(("UTC" "UTC")
+        ("Etc/GMT-3" "+3 UTC")
+        ("Etc/GMT-4" "+4 UTC"))
+      world-clock-time-format "%a %d %b %R %Z")
