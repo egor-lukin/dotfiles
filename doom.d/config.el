@@ -497,6 +497,11 @@ regardless of whether the current buffer is in `eww-mode'."
              meta-llama/codellama-34b-instruct
              codellama/codellama-70b-instruct)))
 
+(map! :leader
+      :prefix "a"
+      :desc "Gptel" "g" #'gptel
+      :desc "Gptel menu" "m" #'gptel-menu)
+
 (use-package ob-gptel
   :hook ((org-mode . ob-gptel-install-completions))
   :defines ob-gptel-install-completions
@@ -558,3 +563,9 @@ regardless of whether the current buffer is in `eww-mode'."
         ("Etc/GMT-3" "+3 UTC")
         ("Etc/GMT-4" "+4 UTC"))
       world-clock-time-format "%a %d %b %R %Z")
+
+ ;; Makefile
+(map! :leader
+      :prefix "m"
+      :desc "makefile-executor-goto-makefile" "g" #'makefile-executor-goto-makefile
+      :desc "makefile-executor-execute-target" "t" #'makefile-executor-execute-target)
