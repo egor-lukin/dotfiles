@@ -119,7 +119,7 @@ If none are selected, symmetric encryption will be performed.")))
     ;; Find the current org heading
     (org-back-to-heading t)
     (let* ((header (nth 4 (org-heading-components)))
-           (dir "~/org/tasks")
+           (dir "~/org/roam/tasks")
            (timestamp (format-time-string "%Y%m%d%H%M%S"))
            (sanitized-header (replace-regexp-in-string "[/\\?%*:|\"<> ]" "_" header))
            (filename (concat dir "/" timestamp "-" sanitized-header ".org")))
@@ -569,3 +569,6 @@ regardless of whether the current buffer is in `eww-mode'."
       :prefix "m"
       :desc "makefile-executor-goto-makefile" "g" #'makefile-executor-goto-makefile
       :desc "makefile-executor-execute-target" "t" #'makefile-executor-execute-target)
+
+(setq org-agenda-prefix-format
+      '((agenda . " %i %-5:c%?-5t% s")))
