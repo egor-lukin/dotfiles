@@ -472,15 +472,15 @@ regardless of whether the current buffer is in `eww-mode'."
  :config
  (setq
   gptel-api-key (password-store-get "env/OPENROUTER_API_KEY")
-  gptel-default-mode "org-mode"
-  gptel-model 'mistralai/mixtral-8x7b-instruct
-  gptel-backend (gptel-make-azure "OpenRouter"
+  gptel-default-mode 'org-mode
+  gptel-model 'mistralai/ministral-14b-2512
+  gptel-backend (gptel-make-openai "OpenRouter"
                   :protocol "https"
                   :host "openrouter.ai"
                   :endpoint "/api/v1/chat/completions"
                   :stream t
                   :key (password-store-get "env/OPENROUTER_API_KEY")
-                  :models '(mistralai/mixtral-8x7b-instruct)))
+                  :models '(mistralai/ministral-14b-2512)))
 
  (gptel-make-openai "OpenRouter"
    :host "openrouter.ai"
@@ -488,12 +488,12 @@ regardless of whether the current buffer is in `eww-mode'."
    :stream t
    :key (password-store-get "env/OPENROUTER_API_KEY")
    :models '(openai/gpt-3.5-turbo
-             mistralai/devstral-2512:free
+             z-ai/glm-5
+             openai/gpt-5.1-chat
+             openai/gpt-oss-120b
+             mistralai/ministral-14b-2512
              deepseek/deepseek-v3.2-speciale
-             deepseek/deepseek-r1-0528-qwen3-8b
-             mistralai/mixtral-8x7b-instruct
-             meta-llama/codellama-34b-instruct
-             codellama/codellama-70b-instruct)))
+             deepseek/deepseek-r1-0528-qwen3-8b)))
 
 (map! :leader
       :prefix "a"
@@ -570,3 +570,7 @@ regardless of whether the current buffer is in `eww-mode'."
 
 (setq org-agenda-prefix-format
       '((agenda . " %i %-5:c%?-5t% s")))
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((http . t)))

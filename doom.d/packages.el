@@ -55,6 +55,7 @@
            :files ("*.el" "README.md" "awk" "docs")))
 
 (package! org-drill)
+(package! ob-http)
 
 (package! aidermacs
   :pin "8ce3d8c"
