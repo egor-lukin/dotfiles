@@ -171,14 +171,12 @@ If none are selected, symmetric encryption will be performed.")))
 ;; (gtd/all-files)
 
 (defun gtd/all-files ()
-  (append
-   (mapcar (lambda (f) (concat gtd-dir f))
-           (append
-            (mapcar (lambda (f) (concat "archived/" f))
-                    (seq-remove (lambda (f) (member f '("." "..")))
-                                (directory-files (concat gtd-dir "archived"))))
-            gtd/files))
-   (gtd/project-files)))
+  (mapcar (lambda (f) (concat gtd-dir f))
+          (append
+           (mapcar (lambda (f) (concat "archived/" f))
+                   (seq-remove (lambda (f) (member f '("." "..")))
+                               (directory-files (concat gtd-dir "archived"))))
+           gtd/files)))
 
 (after! org
   (require 'org-habit)
