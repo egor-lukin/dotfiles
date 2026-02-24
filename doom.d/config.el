@@ -6,7 +6,7 @@
 (setq workspace-dir "~/dotfiles/"
       projects-dir "~/dev/"
       org-dir "~/org/"
-      gtd-dir (concat org-dir "roam/gtd/")
+      gtd-dir (concat org-dir "gtd/")
       gtd/files '("gtd.org" "backlog.org" "archieved.org")
       emacs-dir (concat workspace-dir "doom.d/")
       user-full-name "Egor Lukin"
@@ -119,7 +119,7 @@ If none are selected, symmetric encryption will be performed.")))
     ;; Find the current org heading
     (org-back-to-heading t)
     (let* ((header (nth 4 (org-heading-components)))
-           (dir "~/org/roam/tasks")
+           (dir "~/org/tasks")
            (timestamp (format-time-string "%Y%m%d%H%M%S"))
            (sanitized-header (replace-regexp-in-string "[/\\?%*:|\"<> ]" "_" header))
            (filename (concat dir "/" timestamp "-" sanitized-header ".org")))
@@ -158,7 +158,7 @@ If none are selected, symmetric encryption will be performed.")))
     (goto-char (point-min))
     (re-search-forward "^#\\+FILETAGS:.*:project:" nil t)))
 
-(setq denote-directory-files "~/org/roam/literate")
+(setq denote-directory-files "~/org/literate")
 (defun gtd/project-files ()
   "Return list of org files under DIRECTORY with :project: filetag."
   (let ((files (directory-files-recursively denote-directory-files "\\.org$"))
@@ -183,9 +183,8 @@ If none are selected, symmetric encryption will be performed.")))
   (setq org-directory org-dir
         org-log-into-drawer t
         org-download-dir (concat org-dir "screenshots/")
-        ;; org-archive-location (concat gtd-dir "archieved.org::")
-        org-agenda-files (gtd/all-files)
-        ;; org-agenda-files (list gtd-dir (concat org-dir "roam/literate"))
+        org-archive-location "archived/arch_%s::"
+        org-agenda-files (directory-files "~/org/gtd/" t "\\.org\\(\\.gpg\\)?$")
         org-refile-targets '((org-agenda-files :maxlevel . 2))
         org-todo-keywords
         '((sequence "TODO" "IN-PROGRESS" "WAIT" "|" "DONE" "CLOSED"))
@@ -213,14 +212,6 @@ If none are selected, symmetric encryption will be performed.")))
         '(("l" "Literate note" plain
            "%?"
            :if-new (file+head "literate/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :literate\n")
-           :unnarrowed t)
-          ("t" "Tasks note" plain
-           "%?"
-           :if-new (file+head "tasks/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :task\n")
-           :unnarrowed t)
-          ("a" "Chat" plain
-           "%?"
-           :if-new (file+head "chats/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :chat\n")
            :unnarrowed t)
           ("c" "Concept note" plain
            "%?"
@@ -252,14 +243,14 @@ If none are selected, symmetric encryption will be performed.")))
 (after! org
   (setq org-capture-templates
         '(("t" "Todo" entry
-           (file+headline "roam/gtd/gtd.org" "Inbox")
+           (file+headline "gtd/gtd.org" "Inbox")
            (file "templates/todo.org"))
-          ("e" "English word" entry
-           (file+headline "anki/english_words.org" "Backlog")
-           (file "templates/english_words.org"))
           ("b" "Add entry to daily buffer" entry
            (file+headline (lambda () (my/daily-note-filename)) "buffer")
-           (file "templates/buffer.org")))))
+           (file "templates/buffer.org"))
+          ("d" "Daily check-in" entry
+           (file+olp "gtd/gtd.org" ("Sprint" "Current" "Checkins"))
+           (file "templates/checkins.org")))))
 
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
@@ -373,7 +364,7 @@ regardless of whether the current buffer is in `eww-mode'."
 
 
  ;; Ledger
-(setq hledger-jfile "~/org/roam/finances/ledger.journal")
+(setq hledger-jfile "~/org/finances/ledger.journal")
 
 
  ;; Dash docsets
