@@ -6,8 +6,6 @@
 (setq workspace-dir "~/dotfiles/"
       projects-dir "~/dev/"
       org-dir "~/org/"
-      gtd-dir (concat org-dir "gtd/")
-      gtd/files '("gtd.org" "backlog.org" "archieved.org")
       emacs-dir (concat workspace-dir "doom.d/")
       user-full-name "Egor Lukin"
       user-mail-address "mail@egorlukin.me")
@@ -110,26 +108,6 @@ If none are selected, symmetric encryption will be performed.")))
 
 (setq org-agenda-overriding-columns-format "%100ITEM  %TODO %7EFFORT %PRIORITY     100%TAGS")
 
-(defun gtd/create-task-file ()
-  "Create a task file from the current org header, prompt for directory, and insert a link."
-  (interactive)
-  (unless (derived-mode-p 'org-mode)
-    (error "Not in org-mode"))
-  (save-excursion
-    ;; Find the current org heading
-    (org-back-to-heading t)
-    (let* ((header (nth 4 (org-heading-components)))
-           (dir "~/org/tasks")
-           (timestamp (format-time-string "%Y%m%d%H%M%S"))
-           (sanitized-header (replace-regexp-in-string "[/\\?%*:|\"<> ]" "_" header))
-           (filename (concat dir "/" timestamp "-" sanitized-header ".org")))
-      ;; Create the new file with a header
-      (with-temp-file filename
-        (insert (format "#+title: %s\n\n" header)))
-      (org-set-property "LINK" (format "[[file:%s][Task: %s]]" filename header))
-      ;; Optionally, open the new file
-      (find-file-other-window filename))))
-
 (defvar polybar--default-header "no active clocks!")
 
 (defun polybar--format-line (task time)
@@ -158,33 +136,12 @@ If none are selected, symmetric encryption will be performed.")))
     (goto-char (point-min))
     (re-search-forward "^#\\+FILETAGS:.*:project:" nil t)))
 
-(setq denote-directory-files "~/org/literate")
-(defun gtd/project-files ()
-  "Return list of org files under DIRECTORY with :project: filetag."
-  (let ((files (directory-files-recursively denote-directory-files "\\.org$"))
-        result)
-    (dolist (file files result)
-      (when (gtd/org-file-has-project-tag-p file)
-        (push file result)))))
-
-;; (gtd/project-files)
-;; (gtd/all-files)
-
-(defun gtd/all-files ()
-  (mapcar (lambda (f) (concat gtd-dir f))
-          (append
-           (mapcar (lambda (f) (concat "archived/" f))
-                   (seq-remove (lambda (f) (member f '("." "..")))
-                               (directory-files (concat gtd-dir "archived"))))
-           gtd/files)))
-
 (after! org
   (require 'org-habit)
   (setq org-directory org-dir
         org-log-into-drawer t
         org-download-dir (concat org-dir "screenshots/")
-        org-archive-location "archived/arch_%s::"
-        org-agenda-files (directory-files "~/org/gtd/" t "\\.org\\(\\.gpg\\)?$")
+        org-agenda-files (directory-files "~/org/roam/gtd/" t "\\.org\\(\\.gpg\\)?$")
         org-refile-targets '((org-agenda-files :maxlevel . 2))
         org-todo-keywords
         '((sequence "TODO" "IN-PROGRESS" "WAIT" "|" "DONE" "CLOSED"))
@@ -217,6 +174,14 @@ If none are selected, symmetric encryption will be performed.")))
            "%?"
            :if-new (file+head "concerts/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :concept\n")
            :unnarrowed t)
+          ("a" "Chat" plain
+           "%?"
+           :if-new (file+head "chats/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :chat\n")
+           :unnarrowed t)
+          ("t" "Task note" plain
+           "%?"
+           :if-new (file+head "tasks/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :task\n")
+           :unnarrowed t)
           ))
 
   (map! :leader
@@ -243,14 +208,11 @@ If none are selected, symmetric encryption will be performed.")))
 (after! org
   (setq org-capture-templates
         '(("t" "Todo" entry
-           (file+headline "gtd/gtd.org" "Inbox")
+           (file+headline "roam/gtd/gtd.org" "Inbox")
            (file "templates/todo.org"))
           ("b" "Add entry to daily buffer" entry
            (file+headline (lambda () (my/daily-note-filename)) "buffer")
-           (file "templates/buffer.org"))
-          ("d" "Daily check-in" entry
-           (file+olp "gtd/gtd.org" ("Sprint" "Current" "Checkins"))
-           (file "templates/checkins.org")))))
+           (file "templates/buffer.org")))))
 
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
@@ -554,10 +516,10 @@ regardless of whether the current buffer is in `eww-mode'."
       world-clock-time-format "%a %d %b %R %Z")
 
  ;; Makefile
-(map! :leader
-      :prefix "m"
-      :desc "makefile-executor-goto-makefile" "g" #'makefile-executor-goto-makefile
-      :desc "makefile-executor-execute-target" "t" #'makefile-executor-execute-target)
+;; (map! :leader
+;;       :prefix "m"
+;;       :desc "makefile-executor-goto-makefile" "g" #'makefile-executor-goto-makefile
+;;       :desc "makefile-executor-execute-target" "t" #'makefile-executor-execute-target)
 
 (setq org-agenda-prefix-format
       '((agenda . " %i %-5:c%?-5t% s")))
@@ -565,3 +527,26 @@ regardless of whether the current buffer is in `eww-mode'."
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((http . t)))
+
+(defun my-break-location-copy ()
+  "Copy break file_path:line_number to clipboard."
+  (interactive)
+  (let ((text (my-break-location)))
+    (kill-new text)
+    (message "Copied: %s" text)))
+
+(defun my-break-location ()
+  "Generate string: break file_path:line_number"
+  (interactive)
+  (let* ((file (or (buffer-file-name) ""))
+         (project-root (when (fboundp 'project-current)
+                         (when-let ((proj (project-current)))
+                           (project-root proj))))
+         (relative-file (if project-root
+                            (file-relative-name file project-root)
+                          file))
+         (line (line-number-at-pos))
+         (result (format "break %s:%d" relative-file line)))
+    (if (called-interactively-p 'any)
+        (message "%s" result)
+      result)))
