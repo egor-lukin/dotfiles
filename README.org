@@ -8,7 +8,9 @@ source .env
 #+end_src
 * Guix
 ** Configure
+
 #+begin_src sh
 guix pull
+
 guix home reconfigure home.scm
 #+end_src

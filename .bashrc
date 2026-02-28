@@ -88,5 +88,10 @@ if [ -n "$GUIX_ENVIRONMENT" ]; then
     fi
 fi
 
- export PATH="$HOME/.guix-home/profile/bin:$PATH"
- alias python="python3"
+export PATH="$HOME/.guix-home/profile/bin:$PATH"
+alias python="python3"
+
+
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate)"
+fi
