@@ -17,8 +17,8 @@
  ;; UI settings
 (setq doom-theme 'doom-monokai-pro)
 
-(setq doom-font (font-spec :family "monospace" :size 42 :weight 'semi-light)
-      doom-variable-pitch-font (font-spec :family "sans" :size 42))
+(setq doom-font (font-spec :family "monospace" :size 48 :weight 'semi-light)
+      doom-variable-pitch-font (font-spec :family "sans" :size 48))
 
 (setq display-line-numbers-type t)
 
@@ -550,3 +550,5 @@ regardless of whether the current buffer is in `eww-mode'."
     (if (called-interactively-p 'any)
         (message "%s" result)
       result)))
+
+(toggle-frame-fullscreen)
