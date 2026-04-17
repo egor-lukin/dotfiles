@@ -8,6 +8,10 @@ license: MIT
 
 To guide an AI assistant in creating a detailed, step-by-step task list in Markdown format based on user requirements, feature requests, or existing documentation. The task list should guide a developer through implementation.
 
+## Constraints
+
+- **Create only the task file.** Do NOT edit, modify, or create any other files in the repository besides the task list markdown file in `/tasks/`.
+
 ## Output
 
 - **Format:** Markdown (`.md`)
@@ -22,7 +26,7 @@ To guide an AI assistant in creating a detailed, step-by-step task list in Markd
 4.  **Wait for Confirmation:** Pause and wait for the user to respond with "Go".
 5.  **Phase 2: Generate Sub-Tasks:** Once the user confirms, break down each parent task into smaller, actionable sub-tasks necessary to complete the parent task. Ensure sub-tasks logically follow from the parent task and cover the implementation details implied by the requirements.
 6.  **Identify Relevant Files:** Based on the tasks and requirements, identify potential files that will need to be created or modified. List these under the `Relevant Files` section, including corresponding test files if applicable.
-7.  **Generate Final Output:** Combine the parent tasks, sub-tasks, relevant files, and notes into the final Markdown structure.
+7.  **Generate Final Output:** Combine the parent tasks, sub-tasks, relevant files, and notes into the final Markdown structure. Always include a final parent task for committing changes (e.g., `4.0 Commit Changes`) with sub-tasks for staging files, creating a commit with a short description, and adding a long description body prefixed with `(ai assistant, model: <used llm model>)`.
 8.  **Save Task List:** Save the generated document in the `/tasks/` directory with the filename `tasks-[feature-name].md`, where `[feature-name]` describes the main feature or task being implemented (e.g., if the request was about user profile editing, the output is `tasks-user-profile-editing.md`).
 
 ## Output Format
@@ -61,6 +65,10 @@ Update the file after completing each sub-task, not just after completing an ent
 - [ ] 2.0 Parent Task Title
   - [ ] 2.1 [Sub-task description 2.1]
 - [ ] 3.0 Parent Task Title (may not require sub-tasks if purely structural or configuration)
+- [ ] 4.0 Commit Changes
+  - [ ] 4.1 Stage all modified and new files using `git add .`
+  - [ ] 4.2 Create a git commit with a concise short description summarizing the feature implementation
+  - [ ] 4.3 Include a long description body prefixed with `Assisted-by: <used llm model>` followed by a brief summary of changes made
 ```
 
 ## Interaction Model
