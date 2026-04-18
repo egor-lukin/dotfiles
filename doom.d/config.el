@@ -222,10 +222,10 @@ If none are selected, symmetric encryption will be performed.")))
  ;; Aider/Aidermacs
 (use-package aidermacs
   :config
-  (setenv "OPENROUTER_API_KEY" (password-store-get "env/OPENROUTER_API_KEY"))
+  (setenv "OPENROUTER_API_KEY" (funcall (lambda () (password-store-get "env/OPENROUTER_API_KEY"))))
   (setq
-   aidermacs-openai-api-key (password-store-get "env/OPENAI_API_KEY")
-   aidermacs-anthropic-api-key (password-store-get "env/ANTHROPIC_API_KEY")))
+   aidermacs-openai-api-key (lambda () (password-store-get "env/OPENAI_API_KEY"))
+   aidermacs-anthropic-api-key (lambda () (password-store-get "env/ANTHROPIC_API_KEY"))))
 
 (setq aidermacs-watch-files t)
 
@@ -424,7 +424,7 @@ regardless of whether the current buffer is in `eww-mode'."
 (use-package! gptel
  :config
  (setq
-  gptel-api-key (password-store-get "env/OPENROUTER_API_KEY")
+  gptel-api-key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
   gptel-default-mode 'org-mode
   gptel-model 'mistralai/ministral-14b-2512
   gptel-backend (gptel-make-openai "OpenRouter"
@@ -432,14 +432,14 @@ regardless of whether the current buffer is in `eww-mode'."
                   :host "openrouter.ai"
                   :endpoint "/api/v1/chat/completions"
                   :stream t
-                  :key (password-store-get "env/OPENROUTER_API_KEY")
+                  :key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
                   :models '(mistralai/ministral-14b-2512)))
 
  (gptel-make-openai "OpenRouter"
    :host "openrouter.ai"
    :endpoint "/api/v1/chat/completions"
    :stream t
-   :key (password-store-get "env/OPENROUTER_API_KEY")
+   :key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
    :models '(openai/gpt-3.5-turbo
              z-ai/glm-5
              openai/gpt-5.1-chat
@@ -552,3 +552,6 @@ regardless of whether the current buffer is in `eww-mode'."
       result)))
 
 (toggle-frame-fullscreen)
+
+(require 'acp)
+(require 'agent-shell)

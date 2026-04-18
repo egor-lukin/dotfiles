@@ -15,6 +15,8 @@ alias gap='git add -p'
 alias gsl='git stash list'
 alias gaa='git add .; git commit --amend --no-edit'
 
+alias dc='docker compose'
+
 # Grep with color
 alias grep='grep --color=auto '
 
@@ -95,3 +97,9 @@ alias python="python3"
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate)"
 fi
+
+export PATH="$HOME/.opencode/bin:$PATH"
+
+eval "$(wt config shell init bash)"
+
+alias oc="opencode"

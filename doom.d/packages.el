@@ -66,3 +66,7 @@
   :recipe (:host github
            :branch "main"
            :repo "jwiegley/ob-gptel"))
+
+(package! shell-maker)
+(package! acp)
+(package! agent-shell)
