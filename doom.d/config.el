@@ -551,6 +551,12 @@ regardless of whether the current buffer is in `eww-mode'."
         (message "%s" result)
       result)))
 
+(setq auto-save-default t)
+(setq auto-save-timeout 5)
+
+(auto-save-visited-mode 1)
+(setq auto-save-visited-interval 5)
+
 (toggle-frame-fullscreen)
 
 (require 'acp)
