@@ -17,8 +17,8 @@
  ;; UI settings
 (setq doom-theme 'doom-monokai-pro)
 
-(setq doom-font (font-spec :family "monospace" :size 48 :weight 'semi-light)
-      doom-variable-pitch-font (font-spec :family "sans" :size 48))
+(setq doom-font (font-spec :family "monospace" :size 50 :weight 'semi-light)
+      doom-variable-pitch-font (font-spec :family "sans" :size 50))
 
 (setq display-line-numbers-type t)
 
@@ -140,8 +140,7 @@ If none are selected, symmetric encryption will be performed.")))
   (require 'org-habit)
   (setq org-directory org-dir
         org-log-into-drawer t
-        org-download-dir (concat org-dir "screenshots/")
-        org-agenda-files (directory-files "~/org/roam/gtd/" t "\\.org\\(\\.gpg\\)?$")
+        org-agenda-files (directory-files "~/org/roam/literate/" t "\\.org\\(\\.gpg\\)?$")
         org-refile-targets '((org-agenda-files :maxlevel . 2))
         org-todo-keywords
         '((sequence "TODO" "IN-PROGRESS" "WAIT" "|" "DONE" "CLOSED"))
@@ -214,24 +213,13 @@ If none are selected, symmetric encryption will be performed.")))
            (file+headline (lambda () (my/daily-note-filename)) "buffer")
            (file "templates/buffer.org")))))
 
+(map! :leader
+      "x" #'org-capture)
+
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
 (setq org-clock-persist t)
 
-
- ;; Aider/Aidermacs
-(use-package aidermacs
-  :config
-  (setenv "OPENROUTER_API_KEY" (funcall (lambda () (password-store-get "env/OPENROUTER_API_KEY"))))
-  (setq
-   aidermacs-openai-api-key (lambda () (password-store-get "env/OPENAI_API_KEY"))
-   aidermacs-anthropic-api-key (lambda () (password-store-get "env/ANTHROPIC_API_KEY"))))
-
-(setq aidermacs-watch-files t)
-
-(map! :leader
-      :prefix "a"
-      :desc "Run aidermacs" "a" #'aidermacs-transient-menu)
 
  ;; Search
 (setq helm-mode-fuzzy-match t)
@@ -444,14 +432,18 @@ regardless of whether the current buffer is in `eww-mode'."
              z-ai/glm-5
              openai/gpt-5.1-chat
              openai/gpt-oss-120b
+             qwen/qwen3.6-plus
+             google/gemma-4-26b-a4b-it
              mistralai/ministral-14b-2512
              deepseek/deepseek-v3.2-speciale
-             deepseek/deepseek-r1-0528-qwen3-8b)))
+             deepseek/deepseek-r1-0528-qwen3-8b
+             google/gemma-4-26b-a4b-it:free)))
 
 (map! :leader
       :prefix "a"
       :desc "Gptel" "g" #'gptel
-      :desc "Gptel menu" "m" #'gptel-menu)
+      :desc "Gptel menu" "m" #'gptel-menu
+      :desc "Agent-shell" "s" #'agent-shell)
 
 (use-package ob-gptel
   :hook ((org-mode . ob-gptel-install-completions))
