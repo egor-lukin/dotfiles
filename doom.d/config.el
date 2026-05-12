@@ -439,11 +439,20 @@ regardless of whether the current buffer is in `eww-mode'."
              deepseek/deepseek-r1-0528-qwen3-8b
              google/gemma-4-26b-a4b-it:free)))
 
+(defun my/gptel-rewrite-buffer ()
+  "Select the entire buffer and call gptel-rewrite on it."
+  (interactive)
+  (save-excursion
+    (mark-whole-buffer)
+    (call-interactively #'gptel-rewrite)))
+
 (map! :leader
       :prefix "a"
       :desc "Gptel" "g" #'gptel
       :desc "Gptel menu" "m" #'gptel-menu
-      :desc "Agent-shell" "s" #'agent-shell)
+      :desc "Agent-shell" "s" #'agent-shell
+      :desc "Gptel rewrite buffer" "r" #'gptel-rewrite
+      :desc "Gptel rewrite buffer" "b" #'my/gptel-rewrite-buffer)
 
 (use-package ob-gptel
   :hook ((org-mode . ob-gptel-install-completions))
