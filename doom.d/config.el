@@ -562,3 +562,5 @@ regardless of whether the current buffer is in `eww-mode'."
 
 (require 'acp)
 (require 'agent-shell)
+
+(setq x-super-keysym 'meta)
