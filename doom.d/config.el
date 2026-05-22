@@ -423,21 +423,23 @@ regardless of whether the current buffer is in `eww-mode'."
                   :key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
                   :models '(mistralai/ministral-14b-2512)))
 
- (gptel-make-openai "OpenRouter"
-   :host "openrouter.ai"
-   :endpoint "/api/v1/chat/completions"
-   :stream t
-   :key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
-   :models '(openai/gpt-3.5-turbo
-             z-ai/glm-5
-             openai/gpt-5.1-chat
-             openai/gpt-oss-120b
-             qwen/qwen3.6-plus
-             google/gemma-4-26b-a4b-it
-             mistralai/ministral-14b-2512
-             deepseek/deepseek-v3.2-speciale
-             deepseek/deepseek-r1-0528-qwen3-8b
-             google/gemma-4-26b-a4b-it:free)))
+(gptel-make-openai "OpenRouter"
+  :host "openrouter.ai"
+  :endpoint "/api/v1/chat/completions"
+  :stream t
+  :key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
+  :models '(openai/gpt-3.5-turbo
+            z-ai/glm-5
+            openai/gpt-5.1-chat
+            openai/gpt-oss-120b
+            qwen/qwen3.6-plus
+            google/gemma-4-26b-a4b-it
+            mistralai/ministral-14b-2512
+            deepseek/deepseek-v3.2-speciale
+            deepseek/deepseek-r1-0528-qwen3-8b
+            google/gemma-4-26b-a4b-it:free
+            deepseek/deepseek-v4-flash
+            deepseek/deepseek-v4-pro))
 
 (defun my/gptel-rewrite-buffer ()
   "Select the entire buffer and call gptel-rewrite on it."
