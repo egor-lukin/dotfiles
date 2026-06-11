@@ -207,7 +207,7 @@ If none are selected, symmetric encryption will be performed.")))
 (after! org
   (setq org-capture-templates
         '(("t" "Todo" entry
-           (file+headline "roam/gtd/gtd.org" "Inbox")
+           (file+headline "roam/literate/gtd.org" "Inbox")
            (file "templates/todo.org"))
           ("b" "Add entry to daily buffer" entry
            (file+headline (lambda () (my/daily-note-filename)) "buffer")
@@ -409,6 +409,7 @@ regardless of whether the current buffer is in `eww-mode'."
 
 
  ;; Gptel
+
 (use-package! gptel
  :config
  (setq
@@ -423,23 +424,94 @@ regardless of whether the current buffer is in `eww-mode'."
                   :key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
                   :models '(mistralai/ministral-14b-2512)))
 
-(gptel-make-openai "OpenRouter"
-  :host "openrouter.ai"
-  :endpoint "/api/v1/chat/completions"
-  :stream t
-  :key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
-  :models '(openai/gpt-3.5-turbo
-            z-ai/glm-5
-            openai/gpt-5.1-chat
-            openai/gpt-oss-120b
-            qwen/qwen3.6-plus
-            google/gemma-4-26b-a4b-it
-            mistralai/ministral-14b-2512
-            deepseek/deepseek-v3.2-speciale
-            deepseek/deepseek-r1-0528-qwen3-8b
-            google/gemma-4-26b-a4b-it:free
-            deepseek/deepseek-v4-flash
-            deepseek/deepseek-v4-pro))
+ (gptel-make-ollama "Ollama"
+   :host "localhost:11434"
+   :stream t
+   :models '(gemma4:e2b))
+
+ (gptel-make-openai "OpenRouter"
+   :host "openrouter.ai"
+   :endpoint "/api/v1/chat/completions"
+   :stream t
+   :key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
+   :models '(openai/gpt-3.5-turbo
+             z-ai/glm-5
+             openai/gpt-5.1-chat
+             openai/gpt-oss-120b
+             qwen/qwen3.6-plus
+             google/gemma-4-26b-a4b-it
+             mistralai/ministral-14b-2512
+             deepseek/deepseek-v3.2-speciale
+             deepseek/deepseek-r1-0528-qwen3-8b
+             google/gemma-4-26b-a4b-it:free
+             deepseek/deepseek-v4-flash
+             deepseek/deepseek-v4-pro)))
+
+(gptel-make-preset 'assistant
+  :description "Universal assistant"
+  :backend "OpenRouter"
+  :model 'deepseek/deepseek-v4-flash
+  :use-context 'system
+  :context '("~/org/prompts/assistant.org")
+  :temperature 0.0)
+
+(gptel-make-preset 'english-cards
+  :description "Preset for generating english cards"
+  :backend "OpenRouter"
+  :model 'deepseek/deepseek-v4-flash
+  :use-context 'system
+  :context '("~/org/prompts/english-words.org")
+  :temperature 0.1)
+
+(defmacro gptel-make-safe-tool (&rest args)
+  "Wrap a gptel tool function with error handling."
+  (let ((name (plist-get args :name))
+        (fn   (plist-get args :function)))
+    `(gptel-make-tool
+      ,@args
+      :function
+      (lambda (&rest tool-args)
+        (condition-case err
+            (apply ,fn tool-args)
+          (error
+           (let ((msg (format "Tool error (%s): %s"
+                              ,name
+                              (error-message-string err))))
+             (message "[gptel] %s" msg)
+             msg)))))))
+
+(defun find-train-tickets (from to date)
+  (let ((default-directory (expand-file-name "~/dotfiles")))
+    (with-output-to-string
+      (with-current-buffer standard-output
+        (call-process
+         "bash" nil t nil
+         "-lc"
+         (format "bun run tools/search_trains.ts --from %s --to %s --date %s"
+                 (shell-quote-argument from)
+                 (shell-quote-argument to)
+                 (shell-quote-argument date)))))))
+
+;; (find-train-tickets "Sankt-Peterburg" "Moskva" "31.07.2026")
+
+;; (gptel-make-safe-tool
+(gptel-make-safe-tool
+ :name "search_trains"
+ :description "Search trains between two cities for a given date (use only english naming for cities or Saint Peterburg -> Sankt-Peterburg, Moscow -> Moskva for this cities)"
+ :function
+ (lambda (from to date)
+   (find-train-tickets from to date))
+ :args (list
+        '(:name "from"
+          :type string
+          :description "Departure city")
+        '(:name "to"
+          :type string
+          :description "Arrival city")
+        '(:name "date"
+          :type string
+          :description "Travel date in DD.MM.YYYY format"))
+ :category "travel")
 
 (defun my/gptel-rewrite-buffer ()
   "Select the entire buffer and call gptel-rewrite on it."
@@ -452,8 +524,10 @@ regardless of whether the current buffer is in `eww-mode'."
       :prefix "a"
       :desc "Gptel" "g" #'gptel
       :desc "Gptel menu" "m" #'gptel-menu
-      :desc "Agent-shell" "s" #'agent-shell
-      :desc "Gptel rewrite buffer" "r" #'gptel-rewrite
+      :desc "Gptel send" "s" #'gptel-send
+      :desc "Gptel add" "a" #'gptel-add
+      :desc "Gptel abort" "o" #'gptel-abort
+      :desc "Gptel rewrite" "r" #'gptel-rewrite
       :desc "Gptel rewrite buffer" "b" #'my/gptel-rewrite-buffer)
 
 (use-package ob-gptel
@@ -554,11 +628,9 @@ regardless of whether the current buffer is in `eww-mode'."
         (message "%s" result)
       result)))
 
-(setq auto-save-default t)
-(setq auto-save-timeout 5)
-
-(auto-save-visited-mode 1)
 (setq auto-save-visited-interval 5)
+(setq auto-save-visited-predicate (lambda () (derived-mode-p 'org-mode)))
+(auto-save-visited-mode 1)
 
 (toggle-frame-fullscreen)
 
@@ -566,3 +638,5 @@ regardless of whether the current buffer is in `eww-mode'."
 (require 'agent-shell)
 
 (setq x-super-keysym 'meta)
+
+(global-auto-revert-mode 1)
