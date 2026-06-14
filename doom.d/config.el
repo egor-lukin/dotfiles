@@ -411,23 +411,14 @@ regardless of whether the current buffer is in `eww-mode'."
  ;; Gptel
 
 (use-package! gptel
- :config
- (setq
-  gptel-api-key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
-  gptel-default-mode 'org-mode
-  gptel-model 'mistralai/ministral-14b-2512
-  gptel-backend (gptel-make-openai "OpenRouter"
-                  :protocol "https"
-                  :host "openrouter.ai"
-                  :endpoint "/api/v1/chat/completions"
-                  :stream t
-                  :key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
-                  :models '(mistralai/ministral-14b-2512)))
+  :config
+  (setq gptel-default-mode 'org-mode
+        gptel-model 'gemma4:e2b)
 
  (gptel-make-ollama "Ollama"
    :host "localhost:11434"
    :stream t
-   :models '(gemma4:e2b))
+   :models '((gemma4:e2b :capabilities (media tool-use) :mime-types ("image/jpeg"))))
 
  (gptel-make-openai "OpenRouter"
    :host "openrouter.ai"
@@ -440,10 +431,8 @@ regardless of whether the current buffer is in `eww-mode'."
              openai/gpt-oss-120b
              qwen/qwen3.6-plus
              google/gemma-4-26b-a4b-it
-             mistralai/ministral-14b-2512
-             deepseek/deepseek-v3.2-speciale
-             deepseek/deepseek-r1-0528-qwen3-8b
              google/gemma-4-26b-a4b-it:free
+             (google/gemma-4-26b-a4b-it :capabilities (media tool-use) :mime-types ("image/jpeg"))
              deepseek/deepseek-v4-flash
              deepseek/deepseek-v4-pro)))
 
@@ -492,9 +481,6 @@ regardless of whether the current buffer is in `eww-mode'."
                  (shell-quote-argument to)
                  (shell-quote-argument date)))))))
 
-;; (find-train-tickets "Sankt-Peterburg" "Moskva" "31.07.2026")
-
-;; (gptel-make-safe-tool
 (gptel-make-safe-tool
  :name "search_trains"
  :description "Search trains between two cities for a given date (use only english naming for cities or Saint Peterburg -> Sankt-Peterburg, Moscow -> Moskva for this cities)"
@@ -526,6 +512,7 @@ regardless of whether the current buffer is in `eww-mode'."
       :desc "Gptel menu" "m" #'gptel-menu
       :desc "Gptel send" "s" #'gptel-send
       :desc "Gptel add" "a" #'gptel-add
+      :desc "Gptel add file" "f" #'gptel-add-file
       :desc "Gptel abort" "o" #'gptel-abort
       :desc "Gptel rewrite" "r" #'gptel-rewrite
       :desc "Gptel rewrite buffer" "b" #'my/gptel-rewrite-buffer)
@@ -593,10 +580,9 @@ regardless of whether the current buffer is in `eww-mode'."
       world-clock-time-format "%a %d %b %R %Z")
 
  ;; Makefile
-;; (map! :leader
-;;       :prefix "m"
-;;       :desc "makefile-executor-goto-makefile" "g" #'makefile-executor-goto-makefile
-;;       :desc "makefile-executor-execute-target" "t" #'makefile-executor-execute-target)
+(map! :leader
+      :prefix "m"
+      :desc "makefile-executor-execute-project-target" "t" #'makefile-executor-execute-project-target)
 
 (setq org-agenda-prefix-format
       '((agenda . " %i %-5:c%?-5t% s")))
