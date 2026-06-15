@@ -418,7 +418,8 @@ regardless of whether the current buffer is in `eww-mode'."
  (gptel-make-ollama "Ollama"
    :host "localhost:11434"
    :stream t
-   :models '((gemma4:e2b :capabilities (media tool-use) :mime-types ("image/jpeg"))))
+   :models '((gemma4:e2b :capabilities (media tool-use) :mime-types ("image/jpeg"))
+             (hf.co/unsloth/gemma-4-E2B-it-qat-mobile-GGUF:UD-Q2_K_XL :capabilities (media tool-use) :mime-types ("image/jpeg"))))
 
  (gptel-make-openai "OpenRouter"
    :host "openrouter.ai"
