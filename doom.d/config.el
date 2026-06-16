@@ -205,6 +205,9 @@ If none are selected, symmetric encryption will be performed.")))
         '(("t" "Todo" entry
            (file+headline "roam/literate/gtd.org" "Inbox")
            (file "templates/todo.org"))
+          ("e" "English word" entry
+           (file+headline "roam/literate/20200926110216-english_words.org" "Words")
+           "* %i\n")
           ("b" "Add entry to daily buffer" entry
            (file+headline (lambda () (my/daily-note-filename)) "buffer")
            (file "templates/buffer.org")))))
@@ -248,24 +251,6 @@ If none are selected, symmetric encryption will be performed.")))
 (setq browse-url-browser-function 'eww-browse-url)
 (setq eww-download-directory "~/cached-web-pages")
 
-;; Auto-rename new eww buffers
-(defun xah-rename-eww-hook ()
-  "Rename eww browser's buffer so sites open in new page."
-  ;; (clone-buffer (concat "eww" (format-time-string "%Y-%m-%d %H:%M:%S"))))
-)
-  ;; (rename-buffer (concat "eww" (format-time-string "%Y-%m-%d %H:%M:%S")) t))
-(add-hook 'eww-mode-hook #'xah-rename-eww-hook)
-
-;; C-u M-x eww will force a new eww buffer
-(defun modi/force-new-eww-buffer (orig-fun &rest args)
-  "When prefix argument is used, a new eww buffer will be created,
-regardless of whether the current buffer is in `eww-mode'."
-  (if current-prefix-arg
-      (with-temp-buffer
-        (apply orig-fun args))
-    (apply orig-fun args)))
-(advice-add 'eww :around #'modi/force-new-eww-buffer)
-
 (defun eww-search-current-line ()
   "Search the web using the current line's trimmed content with eww and set it as the selected region."
 (interactive)
@@ -285,6 +270,7 @@ regardless of whether the current buffer is in `eww-mode'."
 (after! eww
   (map! :leader
         :prefix "e"
+        :desc "eww" "e" #'eww
         :desc "eww-list-buffers" "l" #'eww-list-buffers
         :desc "eww-search-current-line" "f" #'eww-search-current-line
         :desc "eww-copy-page-url" "y" #'eww-copy-page-url))
