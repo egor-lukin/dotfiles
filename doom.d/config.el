@@ -249,7 +249,6 @@ If none are selected, symmetric encryption will be performed.")))
 
  ;; Eww
 (setq browse-url-browser-function 'eww-browse-url)
-(setq eww-download-directory "~/cached-web-pages")
 
 (defun eww-search-current-line ()
   "Search the web using the current line's trimmed content with eww and set it as the selected region."
@@ -274,7 +273,6 @@ If none are selected, symmetric encryption will be performed.")))
         :desc "eww-list-buffers" "l" #'eww-list-buffers
         :desc "eww-search-current-line" "f" #'eww-search-current-line
         :desc "eww-copy-page-url" "y" #'eww-copy-page-url))
-
 
  ;; Elfeed
 (after! elfeed
