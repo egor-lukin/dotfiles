@@ -23,13 +23,6 @@
 (setq display-line-numbers-type t)
 
 
- ;; load additonal scripts
-(load-file (expand-file-name "flows.el" emacs-dir))
-
-(if (getenv "TERMUX_VERSION")
-    (load-file (expand-file-name "mobile.el" emacs-dir))
-    (load-file (expand-file-name "desktop.el" emacs-dir)))
-
  ;; Emacs term/shell
 (setq multi-term-program-switches "--login")
 
@@ -533,10 +526,18 @@ regardless of whether the current buffer is in `eww-mode'."
     (add-hook 'completion-at-point-functions
               'ob-gptel-capf nil t)))
 
- ;; extra
-(when (not (getenv "TERMUX_VERSION"))
-  (xclip-mode 1))
+ ;; World Clock
+(setq world-clock-list
+      '(("UTC" "UTC")
+        ("Etc/GMT-3" "+3 UTC")
+        ("Etc/GMT-4" "+4 UTC"))
+      world-clock-time-format "%a %d %b %R %Z")
 
+ ;; Makefile
+(map! :leader
+      :prefix "m"
+      :desc "makefile-executor-execute-project-target" "t" #'makefile-executor-execute-project-target)
+ ;; extra
 (unpin! visual-fill-column)
 
 (winner-mode +1)
@@ -578,18 +579,6 @@ regardless of whether the current buffer is in `eww-mode'."
           (set-buffer-modified-p nil))))))
 
 
- ;; World Clock
-(setq world-clock-list
-      '(("UTC" "UTC")
-        ("Etc/GMT-3" "+3 UTC")
-        ("Etc/GMT-4" "+4 UTC"))
-      world-clock-time-format "%a %d %b %R %Z")
-
- ;; Makefile
-(map! :leader
-      :prefix "m"
-      :desc "makefile-executor-execute-project-target" "t" #'makefile-executor-execute-project-target)
-
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((http . t)))
@@ -629,3 +618,11 @@ regardless of whether the current buffer is in `eww-mode'."
 (setq x-super-keysym 'meta)
 
 (global-auto-revert-mode 1)
+
+
+ ;; load additonal scripts
+(load-file (expand-file-name "flows.el" emacs-dir))
+
+(if (getenv "TERMUX_VERSION")
+    (load-file (expand-file-name "mobile.el" emacs-dir))
+    (load-file (expand-file-name "desktop.el" emacs-dir)))
