@@ -192,14 +192,6 @@ If none are selected, symmetric encryption will be performed.")))
         :desc "org-roam-buffer-toggle" "b" #'org-roam-buffer-toggle
         :desc "org-roam-capture" "c" #'org-roam-capture))
 
-(defun my/daily-note-filename ()
-  (let ((date (format-time-string "%Y-%m-%d" (current-time))))
-    (concat
-     "~/org/roam/daily/"
-     date
-     ".org")))
-
-;; %Y-%m-%d.org
 (after! org
   (setq org-capture-templates
         '(("t" "Todo" entry
@@ -209,7 +201,13 @@ If none are selected, symmetric encryption will be performed.")))
            (file+headline "roam/literate/20200926110216-english_words.org" "Words")
            "* %i\n")
           ("b" "Add entry to daily buffer" entry
-           (file+headline (lambda () (my/daily-note-filename)) "buffer")
+           (file+headline (lambda ()
+                            (let ((date (format-time-string "%Y-%m-%d" (current-time))))
+                              (concat
+                               "~/org/roam/daily/"
+                               date
+                               ".org")))
+                          "buffer")
            (file "templates/buffer.org")))))
 
 (map! :leader
