@@ -26,6 +26,9 @@
  ;; load additonal scripts
 (load-file (expand-file-name "flows.el" emacs-dir))
 
+(if (getenv "TERMUX_VERSION")
+    (load-file (expand-file-name "mobile.el" emacs-dir))
+    (load-file (expand-file-name "desktop.el" emacs-dir)))
 
  ;; Emacs term/shell
 (setq multi-term-program-switches "--login")
@@ -220,6 +223,8 @@ If none are selected, symmetric encryption will be performed.")))
 (org-clock-persistence-insinuate)
 (setq org-clock-persist t)
 
+(setq org-agenda-prefix-format
+      '((agenda . " %i %-5:c%?-5t% s")))
 
  ;; Search
 (setq helm-mode-fuzzy-match t)
@@ -584,9 +589,6 @@ regardless of whether the current buffer is in `eww-mode'."
 (map! :leader
       :prefix "m"
       :desc "makefile-executor-execute-project-target" "t" #'makefile-executor-execute-project-target)
-
-(setq org-agenda-prefix-format
-      '((agenda . " %i %-5:c%?-5t% s")))
 
 (org-babel-do-load-languages
  'org-babel-load-languages
