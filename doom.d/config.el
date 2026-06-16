@@ -606,6 +606,7 @@ If none are selected, symmetric encryption will be performed.")))
 
  ;; load additonal scripts
 (load-file (expand-file-name "flows.el" emacs-dir))
+(add-to-list 'load-path "../lisp/org-mobile-mode")
 
 (if (getenv "TERMUX_VERSION")
     (load-file (expand-file-name "mobile.el" emacs-dir))
