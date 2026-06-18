@@ -1,7 +1,6 @@
 ;;; org-mobile-mode.el --- Org mode improvements for touch screen  -*- lexical-binding: t; -*-
 
 ;;; Code:
-
 (defvar org-mobile-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "<double-mouse-1>") 'org-mobile-mode--handle-item-touch)
@@ -70,16 +69,17 @@ buffers will automatically disable itself.
 
 (defun org-mobile-mode--insert-checkbox ()
   (org-insert-item)
-  (insert "[ ]  "))
+  (insert "[ ] "))
 
-(defun org-mobile-mode--ret-in-list ()
-  (interactive)
-  (if (org-in-item-p)
-      (org-mobile-mode--insert-checkbox)
-    (newline-and-indent)))
+(defun org-mobile-mode--org-return (orig-fn &rest args)
+  (cond
+   ((and (bound-and-true-p org-mobile-mode)
+         (org-in-item-p))
+    (org-mobile-mode--insert-checkbox))
+   (t
+    (apply orig-fn args))))
 
-(with-eval-after-load 'org
-  (define-key org-mode-map (kbd "RET") #'org-mobile-mode--ret-in-list))
+(advice-add 'org-return :around #'org-mobile-mode--org-return)
 
 ;;;###autoload
 (provide 'org-mobile-mode)
