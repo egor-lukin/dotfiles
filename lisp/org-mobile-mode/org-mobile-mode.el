@@ -68,6 +68,19 @@ buffers will automatically disable itself.
                  #'org-mobile-mode--check-org-mode
                  t)))
 
+(defun org-mobile-mode--insert-checkbox ()
+  (org-insert-item)
+  (insert "[ ]  "))
+
+(defun org-mobile-mode--ret-in-list ()
+  (interactive)
+  (if (org-in-item-p)
+      (org-mobile-mode--insert-checkbox)
+    (newline-and-indent)))
+
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "RET") #'org-mobile-mode--ret-in-list))
+
 ;;;###autoload
 (provide 'org-mobile-mode)
 
