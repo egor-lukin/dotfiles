@@ -136,7 +136,7 @@ If none are selected, symmetric encryption will be performed.")))
   (require 'org-habit)
   (setq org-directory org-dir
         org-log-into-drawer t
-        org-agenda-files (directory-files "~/org/roam/literate/" t "\\.org\\(\\.gpg\\)?$")
+        org-agenda-files (directory-files "~/org/projects/" t "\\.org\\(\\.gpg\\)?$")
         org-refile-targets '((org-agenda-files :maxlevel . 2))
         org-todo-keywords
         '((sequence "TODO" "IN-PROGRESS" "WAIT" "|" "DONE" "CLOSED"))
