@@ -195,7 +195,7 @@ If none are selected, symmetric encryption will be performed.")))
 (after! org
   (setq org-capture-templates
         '(("t" "Todo" entry
-           (file+headline "roam/literate/gtd.org" "Inbox")
+           (file+headline "projects/gtd.org" "Inbox")
            (file "templates/todo.org"))
           ("e" "English word" entry
            (file+headline "roam/literate/20200926110216-english_words.org" "Words")
