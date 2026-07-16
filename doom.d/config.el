@@ -91,7 +91,10 @@ If none are selected, symmetric encryption will be performed.")))
   (insert (org--photos-list)))
 
 (defun hms-to-pomodoros (str)
-  (/ (hms-to-minutes str) 25))
+  (cond
+   ((or (null str) (string-empty-p str)) 0)
+   ((and (string-prefix-p "*" str) (string-suffix-p "*" str)) (/ (hms-to-minutes (substring str 1 -1)) 25))
+   (t (/ (hms-to-minutes str) 25))))
 
 (defun hms-to-minutes (str)
   (let* ((lst (split-string str ":"))
