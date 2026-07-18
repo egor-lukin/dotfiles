@@ -397,7 +397,7 @@ If none are selected, symmetric encryption will be performed.")))
 (use-package! gptel
   :config
   (setq gptel-default-mode 'org-mode
-        gptel-model 'gemma4:e2b)
+        gptel-model 'deepseek/deepseek-v4-flash)
 
  (gptel-make-ollama "Ollama"
    :host "localhost:11434"
@@ -500,6 +500,7 @@ If none are selected, symmetric encryption will be performed.")))
       :desc "Gptel add file" "f" #'gptel-add-file
       :desc "Gptel abort" "o" #'gptel-abort
       :desc "Gptel rewrite" "r" #'gptel-rewrite
+      :desc "Gptel clean context" "c" #'gptel-context-remove-all
       :desc "Gptel rewrite buffer" "b" #'my/gptel-rewrite-buffer)
 
 (use-package ob-gptel
