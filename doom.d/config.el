@@ -297,7 +297,8 @@ If none are selected, symmetric encryption will be performed.")))
 
 
  ;; Ledger
-(setq hledger-jfile "~/org/finances/ledger.journal")
+(setq hledger-jfile "~/org/roam/finances/ledger.journal")
+(add-to-list 'auto-mode-alist '("\\.journal\\'" . hledger-mode))
 
 
  ;; Dash docsets
