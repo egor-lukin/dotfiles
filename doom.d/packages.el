@@ -71,3 +71,6 @@
 (package! acp)
 (package! agent-shell)
 (package! gptel-agent)
+
+(package! denote)
+(package! denote-journal)

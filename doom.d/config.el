@@ -614,3 +614,53 @@ If none are selected, symmetric encryption will be performed.")))
 (if (getenv "TERMUX_VERSION")
     (load-file (expand-file-name "mobile.el" emacs-dir))
     (load-file (expand-file-name "desktop.el" emacs-dir)))
+
+
+ ;; Denote
+
+;;(info "(denote) Sample configuration")
+(use-package denote
+  :ensure t
+  :hook (dired-mode . denote-dired-mode)
+  :config
+  (map! :leader
+        :prefix "d"
+        :desc "denote" "n" #'denote
+        :desc "denote-link-after-creating" "i" #'denote-link-after-creating
+        :desc "denote-journal-new-or-existing-entry" "j" #'denote-journal-new-or-existing-entry
+        :desc "denote-open-or-create" "f" #'denote-open-or-create)
+  (setq
+   denote-directory (expand-file-name "~/org/")
+   denote-prompts '(title keywords subdirectory))
+  (denote-rename-buffer-mode 1))
+
+
+(use-package denote-journal
+  :ensure t
+  :commands (denote-journal-new-entry
+             denote-journal-new-or-existing-entry
+             denote-journal-link-or-create-entry)
+  :hook (calendar-mode . denote-journal-calendar-mode)
+  :config
+  (setq denote-journal-directory
+        (expand-file-name "journal" denote-directory))
+  (setq denote-journal-keyword "journal")
+  (setq denote-journal-title-format "%Y-%m-%d"))
+
+(with-eval-after-load 'org-capture
+  (setq org-capture-templates
+        (append
+         '(("n" "new note (via denote)" plain
+            (file denote-last-path)
+            (function
+             (lambda ()
+               (let ((denote-use-directory (read-directory-name "Subdirectory: " (denote-directory))))
+                 (denote-org-capture))))
+            :no-save t
+            :immediate-finish nil
+            :kill-buffer t
+            :jump-to-captured t)
+           ("w" "temp daily note" entry
+            (file+headline (lambda () (denote-journal-path-to-new-or-existing-entry)) "buffer")
+            (file "templates/buffer.org")))
+         org-capture-templates)))
