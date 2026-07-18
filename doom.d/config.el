@@ -297,7 +297,7 @@ If none are selected, symmetric encryption will be performed.")))
 
 
  ;; Ledger
-(setq hledger-jfile "~/org/roam/finances/ledger.journal")
+(setq hledger-jfile "~/org/finances/ledger.journal")
 (add-to-list 'auto-mode-alist '("\\.journal\\'" . hledger-mode))
 
 
@@ -523,7 +523,7 @@ If none are selected, symmetric encryption will be performed.")))
  ;; Makefile
 (map! :leader
       :prefix "m"
-      :desc "makefile-executor-execute-project-target" "t" #'makefile-executor-execute-project-target)
+      :desc "makefile-executor-execute-project-target" "p" #'makefile-executor-execute-project-target)
  ;; extra
 (unpin! visual-fill-column)
 
