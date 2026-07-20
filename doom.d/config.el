@@ -201,17 +201,8 @@ If none are selected, symmetric encryption will be performed.")))
            (file+headline "projects/gtd.org" "Inbox")
            (file "templates/todo.org"))
           ("e" "English word" entry
-           (file+headline "roam/literate/20200926110216-english_words.org" "Words")
-           "* %i\n")
-          ("b" "Add entry to daily buffer" entry
-           (file+headline (lambda ()
-                            (let ((date (format-time-string "%Y-%m-%d" (current-time))))
-                              (concat
-                               "~/org/roam/daily/"
-                               date
-                               ".org")))
-                          "buffer")
-           (file "templates/buffer.org")))))
+           (file+headline "drill/english_words.org" "Words")
+           "* %? :drill:\n[]\n"))))
 
 (map! :leader
       "x" #'org-capture)
