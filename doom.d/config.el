@@ -623,17 +623,17 @@ If none are selected, symmetric encryption will be performed.")))
   :ensure t
   :hook (dired-mode . denote-dired-mode)
   :config
-  (map! :leader
-        :prefix "d"
-        :desc "denote" "n" #'denote
-        :desc "denote-link-after-creating" "i" #'denote-link-after-creating
-        :desc "denote-journal-new-or-existing-entry" "j" #'denote-journal-new-or-existing-entry
-        :desc "denote-open-or-create" "f" #'denote-open-or-create)
   (setq
    denote-directory (expand-file-name "~/org/")
    denote-prompts '(title keywords subdirectory))
   (denote-rename-buffer-mode 1))
 
+(map! :leader
+      :prefix "d"
+      :desc "denote" "n" #'denote
+      :desc "denote-link-after-creating" "i" #'denote-link-after-creating
+      :desc "denote-journal-new-or-existing-entry" "j" #'denote-journal-new-or-existing-entry
+      :desc "denote-open-or-create" "f" #'denote-open-or-create)
 
 (use-package denote-journal
   :ensure t
@@ -660,7 +660,7 @@ If none are selected, symmetric encryption will be performed.")))
             :immediate-finish nil
             :kill-buffer t
             :jump-to-captured t)
-           ("w" "temp daily note" entry
+           ("b" "temp daily note" entry
             (file+headline (lambda () (denote-journal-path-to-new-or-existing-entry)) "buffer")
             (file "templates/buffer.org")))
          org-capture-templates)))
