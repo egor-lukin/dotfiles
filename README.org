@@ -14,3 +14,8 @@ guix pull
 
 guix home reconfigure home.scm
 #+end_src
+* Keyd
+#+begin_src sh
+sudo ln -s ~/dotfiles/keyd.conf /etc/keyd/default.conf
+sudo keyd reload
+#+end_src
