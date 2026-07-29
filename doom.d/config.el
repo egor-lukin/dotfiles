@@ -153,48 +153,6 @@ If none are selected, symmetric encryption will be performed.")))
   :config
   (setq org-drill-spaced-repetition-algorithm 'sm2))
 
-(after! org-roam
-  (setq org-roam-directory "~/org/roam")
-  (setq org-roam-db-location  "~/org/roam/org-roam.db")
-
-  (setq org-roam-dailies-capture-templates
-        '(("d" "default" entry
-           "* %?"
-           :target (file+head "%<%Y-%m-%d>.org"
-                              "#+title: %<%A, %d %B %Y>\n"))))
-
-  (setq org-roam-capture-templates
-        '(("l" "Literate note" plain
-           "%?"
-           :if-new (file+head "literate/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :literate\n")
-           :unnarrowed t)
-          ("c" "Concept note" plain
-           "%?"
-           :if-new (file+head "concerts/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :concept\n")
-           :unnarrowed t)
-          ("a" "Chat" plain
-           "%?"
-           :if-new (file+head "chats/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :chat\n")
-           :unnarrowed t)
-          ("t" "Task note" plain
-           "%?"
-           :if-new (file+head "tasks/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+filetags: :task\n")
-           :unnarrowed t)
-          ))
-
-  (map! :leader
-        :prefix "r"
-        :desc "org-roam-node-insert" "i" #'org-roam-node-insert
-        :desc "org-roam-node-find" "f" #'org-roam-node-find
-        :desc "org-roam-dailies-goto-date" "s" #'org-roam-dailies-goto-date
-        :desc "org-roam-dailies-goto-today" "d" #'org-roam-dailies-goto-today
-        :desc "org-roam-buffer" "l" #'org-roam-buffer
-        :desc "org-roam-show-graph" "g" #'org-roam-show-graph
-        :desc "org-roam-dailies-find-next-note" "n" #'org-roam-dailies-find-next-note
-        :desc "org-roam-dailies-find-previous-note" "p" #'org-roam-dailies-find-previous-note
-        :desc "org-roam-buffer-toggle" "b" #'org-roam-buffer-toggle
-        :desc "org-roam-capture" "c" #'org-roam-capture))
-
 (after! org
   (setq org-capture-templates
         '(("t" "Todo" entry
