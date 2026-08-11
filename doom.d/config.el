@@ -160,7 +160,13 @@ If none are selected, symmetric encryption will be performed.")))
            (file "templates/todo.org"))
           ("e" "English word" entry
            (file+headline "drill/english_words.org" "Words")
-           "* %? :drill:\n[]\n"))))
+           "* %? :drill:\n[]\n")
+          ("p" "Project Todo" entry
+           (file+headline (lambda ()
+                            (let ((file (completing-read "File: " (directory-files "~/org/projects" nil "\\.org$"))))
+                              (concat "~/org/projects/" file)))
+                          "Inbox")
+           (file "templates/todo.org")))))
 
 (map! :leader
       "x" #'org-capture)
