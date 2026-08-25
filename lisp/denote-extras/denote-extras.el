@@ -1,0 +1,16 @@
+(defun my/denote-journal-previous-day ()
+  "Open the Denote journal file for the previous day."
+  (interactive)
+  (if (denote-journal-file-is-journal-p (buffer-file-name))
+      (let* ((id (denote--file-name-id (buffer-file-name)))
+             (date-str (substring id 0 8))
+             (current-date (format "%s-%s-%s" (substring date-str 0 4)
+                                   (substring date-str 4 6)
+                                   (substring date-str 6 8)))
+             (previous-date (my/denote-journal--previous-date current-date))
+             (previous-time (date-to-time previous-date))
+             (files (denote-journal--get-entry previous-time)))
+        (if files
+            (find-file (car files))
+          (message "No journal file for %s" previous-date)))
+    (message "Current buffer is not a Denote journal file")))
