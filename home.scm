@@ -8,9 +8,9 @@
 
 (home-environment
   (packages (specifications->packages (list "glibc-locales"
-                                            "ruby"
-                                            "python"
-                                            "libyaml"
+                                            ;; "ruby"
+                                            ;; "python"
+                                            ;; "libyaml"
                                             "openssl"
                                             "node")))
 
@@ -27,8 +27,5 @@
     (simple-service 'ld-library-path
                     home-environment-variables-service-type
                     '(("LD_LIBRARY_PATH" . "$HOME/.guix-home/profile/lib")))
-    (simple-service 'aider.conf.yml
-                   home-files-service-type
-                   (list
-                    `(".aider.conf.yml" ,(local-file "aider.conf.yml"))))
+
     )))
