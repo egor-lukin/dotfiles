@@ -103,3 +103,8 @@ export PATH="$HOME/.opencode/bin:$PATH"
 eval "$(wt config shell init bash)"
 
 alias oc="opencode"
+
+export PATH="$HOME/whisper.cpp/build/bin:$PATH"
+
+GPG_TTY=$(tty)
+export GPG_TTY
