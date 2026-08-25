@@ -613,3 +613,20 @@ If none are selected, symmetric encryption will be performed.")))
             (file+headline (lambda () (denote-journal-path-to-new-or-existing-entry)) "buffer")
             (file "templates/buffer.org")))
          org-capture-templates)))
+
+
+ ;; speechd-el
+
+(setq speechd-speak-read-command-keys nil)
+
+
+(map! :leader
+      :prefix "y"
+      :desc "polybar-current-clock-line" "l" #'speechd-speak-read-line
+      :desc "polybar-current-clock-line" "b" #'speechd-speak-read-buffer
+      :desc "polybar-current-clock-line" "p" #'speechd-speak-read-paragraph
+      :desc "polybar-current-clock-line" "w" #'speechd-speak-read-word
+      :desc "polybar-current-clock-line" "s" #'speechd-speak-read-sentence
+      :desc "polybar-current-clock-line" "r" #'speechd-speak-read-region
+      :desc "polybar-current-clock-line" "c" #'speechd-stop
+      :desc "polybar-current-clock-line" "d" #'global-speechd-speak-mode)
