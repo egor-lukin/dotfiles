@@ -376,6 +376,9 @@ If none are selected, symmetric encryption will be performed.")))
              deepseek/deepseek-v4-flash
              deepseek/deepseek-v4-pro)))
 
+(setq gptel-default-mode 'org-mode
+      gptel-model 'deepseek/deepseek-v4-flash)
+
 (gptel-make-preset 'assistant
   :description "Universal assistant"
   :backend "OpenRouter"
@@ -563,7 +566,6 @@ If none are selected, symmetric encryption will be performed.")))
 
 
  ;; load additonal scripts
-(load-file (expand-file-name "flows.el" emacs-dir))
 (add-to-list 'load-path "../lisp/org-mobile-mode")
 
 (if (getenv "TERMUX_VERSION")
