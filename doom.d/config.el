@@ -155,17 +155,14 @@ If none are selected, symmetric encryption will be performed.")))
 
 (after! org
   (setq org-capture-templates
-        '(("t" "Todo" entry
-           (file+headline "projects/gtd.org" "Inbox")
-           (file "templates/todo.org"))
-          ("e" "English word" entry
+        '(("e" "English word" entry
            (file+headline "drill/english_words.org" "Words")
            "* %? :drill:\n[]\n")
-          ("p" "Project Todo" entry
+          ("t" "Project Todo" entry
            (file+headline (lambda ()
                             (let ((file (completing-read "File: " (directory-files "~/org/projects" nil "\\.org$"))))
                               (concat "~/org/projects/" file)))
-                          "Inbox")
+                          "tasks")
            (file "templates/todo.org")))))
 
 (map! :leader
@@ -590,6 +587,7 @@ If none are selected, symmetric encryption will be performed.")))
       :desc "denote" "n" #'denote
       :desc "denote-link-after-creating" "i" #'denote-link-after-creating
       :desc "denote-journal-new-or-existing-entry" "j" #'denote-journal-new-or-existing-entry
+      :desc "denote-link" "l" #'denote-link
       :desc "denote-open-or-create" "f" #'denote-open-or-create)
 
 (use-package denote-journal
