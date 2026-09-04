@@ -357,12 +357,13 @@ If none are selected, symmetric encryption will be performed.")))
    :models '((gemma4:e2b :capabilities (media tool-use) :mime-types ("image/jpeg"))
              (hf.co/unsloth/gemma-4-E2B-it-qat-mobile-GGUF:UD-Q2_K_XL :capabilities (media tool-use) :mime-types ("image/jpeg"))))
 
- (gptel-make-openai "OpenRouter"
+(gptel-make-openai "OpenRouter"
    :host "openrouter.ai"
    :endpoint "/api/v1/chat/completions"
    :stream t
    :key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
-   :models '(openai/gpt-3.5-turbo
+   :models '(openrouter/auto:free
+             openai/gpt-3.5-turbo
              z-ai/glm-5
              openai/gpt-5.1-chat
              openai/gpt-oss-120b
