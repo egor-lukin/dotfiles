@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
  ;; basic settings
 (setq-local outline-regexp "^\f")
 
@@ -152,21 +153,6 @@ If none are selected, symmetric encryption will be performed.")))
   :ensure t
   :config
   (setq org-drill-spaced-repetition-algorithm 'sm2))
-
-(after! org
-  (setq org-capture-templates
-        '(("e" "English word" entry
-           (file+headline "drill/english_words.org" "Words")
-           "* %? :drill:\n[]\n")
-          ("t" "Project Todo" entry
-           (file+headline (lambda ()
-                            (let ((file (completing-read "File: " (directory-files "~/org/projects" nil "\\.org$"))))
-                              (concat "~/org/projects/" file)))
-                          "tasks")
-           (file "templates/todo.org")))))
-
-(map! :leader
-      "x" #'org-capture)
 
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
@@ -480,6 +466,73 @@ If none are selected, symmetric encryption will be performed.")))
 (map! :leader
       :prefix "m"
       :desc "makefile-executor-execute-project-target" "p" #'makefile-executor-execute-project-target)
+ ;; Denote
+
+(use-package denote
+  :ensure t
+  :hook (dired-mode . denote-dired-mode)
+  :config
+  (setq
+   denote-directory (expand-file-name "~/org/")
+   denote-prompts '(title keywords subdirectory))
+  (denote-rename-buffer-mode 1))
+
+(map! :leader
+      :prefix "d"
+      :desc "denote" "n" #'denote
+      :desc "denote-link-after-creating" "i" #'denote-link-after-creating
+      :desc "denote-journal-new-or-existing-entry" "j" #'denote-journal-new-or-existing-entry
+      :desc "denote-link" "l" #'denote-link
+      :desc "denote-open-or-create" "f" #'denote-open-or-create)
+
+(use-package denote-journal
+  :ensure t
+  :commands (denote-journal-new-entry
+             denote-journal-new-or-existing-entry
+             denote-journal-link-or-create-entry)
+  :hook (calendar-mode . denote-journal-calendar-mode)
+  :config
+  (setq denote-journal-directory
+        (expand-file-name "journal" denote-directory))
+  (setq denote-journal-keyword "journal")
+  (setq denote-journal-title-format "%Y-%m-%d"))
+
+(with-eval-after-load 'org
+  (push (denote-journal-path-to-new-or-existing-entry) org-agenda-files))
+
+ ;; Org Capture
+(setq org-capture-templates
+      '(
+        ("e" "English word" entry
+         (file+headline "drill/english_words.org" "Words")
+         "* %? :drill:\n[]\n")
+        ("t" "Project Todo" entry
+         (file+headline (lambda ()
+                          (completing-read "File: " org-agenda-files))
+                        "tasks")
+         (file "templates/todo.org"))
+        ("n" "new note (via denote)" plain
+         (file denote-last-path)
+         (function
+          (lambda ()
+            (let ((denote-use-directory (read-directory-name "Subdirectory: " (denote-directory))))
+              (denote-org-capture))))
+         :no-save t
+         :immediate-finish nil
+         :kill-buffer t
+         :jump-to-captured t)
+        ("b" "temp daily note" entry
+         (file+headline (lambda () (denote-journal-path-to-new-or-existing-entry)) "buffer")
+         (file "templates/buffer.org"))))
+
+(map! :leader
+      "x" #'org-capture)
+
+ ;; Termux
+(defun termux-p ()
+  (getenv "TERMUX_VERSION"))
+
+
  ;; extra
 (unpin! visual-fill-column)
 
@@ -562,61 +615,11 @@ If none are selected, symmetric encryption will be performed.")))
 
 (global-auto-revert-mode 1)
 
-
  ;; load additonal scripts
-(add-to-list 'load-path "../lisp/org-mobile-mode")
+(add-to-list 'load-path "../lisp/denote-extras")
 
-(if (getenv "TERMUX_VERSION")
+(if (termux-p)
     (load-file (expand-file-name "mobile.el" emacs-dir))
     (load-file (expand-file-name "desktop.el" emacs-dir)))
 
 
- ;; Denote
-
-;;(info "(denote) Sample configuration")
-(use-package denote
-  :ensure t
-  :hook (dired-mode . denote-dired-mode)
-  :config
-  (setq
-   denote-directory (expand-file-name "~/org/")
-   denote-prompts '(title keywords subdirectory))
-  (denote-rename-buffer-mode 1))
-
-(map! :leader
-      :prefix "d"
-      :desc "denote" "n" #'denote
-      :desc "denote-link-after-creating" "i" #'denote-link-after-creating
-      :desc "denote-journal-new-or-existing-entry" "j" #'denote-journal-new-or-existing-entry
-      :desc "denote-link" "l" #'denote-link
-      :desc "denote-open-or-create" "f" #'denote-open-or-create)
-
-(use-package denote-journal
-  :ensure t
-  :commands (denote-journal-new-entry
-             denote-journal-new-or-existing-entry
-             denote-journal-link-or-create-entry)
-  :hook (calendar-mode . denote-journal-calendar-mode)
-  :config
-  (setq denote-journal-directory
-        (expand-file-name "journal" denote-directory))
-  (setq denote-journal-keyword "journal")
-  (setq denote-journal-title-format "%Y-%m-%d"))
-
-(with-eval-after-load 'org-capture
-  (setq org-capture-templates
-        (append
-         '(("n" "new note (via denote)" plain
-            (file denote-last-path)
-            (function
-             (lambda ()
-               (let ((denote-use-directory (read-directory-name "Subdirectory: " (denote-directory))))
-                 (denote-org-capture))))
-            :no-save t
-            :immediate-finish nil
-            :kill-buffer t
-            :jump-to-captured t)
-           ("b" "temp daily note" entry
-            (file+headline (lambda () (denote-journal-path-to-new-or-existing-entry)) "buffer")
-            (file "templates/buffer.org")))
-         org-capture-templates)))

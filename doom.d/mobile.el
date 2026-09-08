@@ -1,3 +1,6 @@
+;; -*- lexical-binding: t; -*-
+(add-to-list 'load-path "../lisp/org-mobile-mode")
+
 (setq org-agenda-prefix-format
       '((agenda . " ")))
 
