@@ -30,7 +30,15 @@ DATE — строка вида \"ГГГГ-ММ-ДД\" (по умолчанию �
                          (lambda (a b) (string< (plist-get a :start)
                                                  (plist-get b :start)))))
     ;; (my/org-logbook--show date results)
-    results))
+    (my/org-logbook-formatter results)))
+
+(defun my/org-logbook-formatter (entries)
+  "Преобразовать ENTRIES в список списков (ФАЙЛ НАЧАЛО КОНЕЦ)."
+  (mapcar (lambda (e)
+            (list (plist-get e :file)
+                  (plist-get e :start)
+                  (plist-get e :end)))
+          entries))
 
 (defun my/org-logbook--time-of (timestamp)
   "Извлечь ЧЧ:ММ из строки таймстампа org TIMESTAMP."
