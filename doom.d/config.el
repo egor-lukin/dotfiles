@@ -614,6 +614,7 @@ If none are selected, symmetric encryption will be performed.")))
 
  ;; load additonal scripts
 (add-to-list 'load-path "../lisp/denote-extras")
+(add-to-list 'load-path "../lisp/logbook-table")
 
 (if (termux-p)
     (load-file (expand-file-name "mobile.el" emacs-dir))
