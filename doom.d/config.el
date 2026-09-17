@@ -480,6 +480,7 @@ If none are selected, symmetric encryption will be performed.")))
       :desc "denote-link-after-creating" "i" #'denote-link-after-creating
       :desc "denote-journal-new-or-existing-entry" "j" #'denote-journal-new-or-existing-entry
       :desc "denote-link" "l" #'denote-link
+      :desc "denote-backlinks" "b" #'denote-backlinks
       :desc "denote-open-or-create" "f" #'denote-open-or-create)
 
 (use-package denote-journal
@@ -611,6 +612,9 @@ If none are selected, symmetric encryption will be performed.")))
 (setq x-super-keysym 'meta)
 
 (global-auto-revert-mode 1)
+
+(map! :leader
+      (:desc "switch-to-buffer" "," #'switch-to-buffer))
 
  ;; load additonal scripts
 (add-to-list 'load-path "../lisp/denote-extras")
