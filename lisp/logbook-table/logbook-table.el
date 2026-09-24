@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; -*-
+
 (defun my/org-logbook-for-day (&optional date)
   "Собрать все CLOCK-записи (logbook) из `org-agenda-files' за DATE.
 
@@ -35,9 +37,11 @@ DATE — строка вида \"ГГГГ-ММ-ДД\" (по умолчанию �
 (defun my/org-logbook-formatter (entries)
   "Преобразовать ENTRIES в список списков (ФАЙЛ НАЧАЛО КОНЕЦ)."
   (mapcar (lambda (e)
-            (list (plist-get e :file)
-                  (plist-get e :start)
-                  (plist-get e :end)))
+            (list
+             (plist-get e :file)
+             (plist-get e :heading)
+             (plist-get e :start)
+             (plist-get e :end)))
           entries))
 
 (defun my/org-logbook--time-of (timestamp)
@@ -65,3 +69,5 @@ DATE — строка вида \"ГГГГ-ММ-ДД\" (по умолчанию �
       (search-forward "|-" nil t)
       (org-table-align))
     (display-buffer (current-buffer))))
+
+(provide 'logbook-table)
