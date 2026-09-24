@@ -474,6 +474,9 @@ If none are selected, symmetric encryption will be performed.")))
    denote-prompts '(title keywords subdirectory))
   (denote-rename-buffer-mode 1))
 
+(add-to-list 'load-path "../lisp/denote-extras")
+(require 'denote-extras)
+
 (map! :leader
       :prefix "d"
       :desc "denote" "n" #'denote
@@ -481,6 +484,8 @@ If none are selected, symmetric encryption will be performed.")))
       :desc "denote-journal-new-or-existing-entry" "j" #'denote-journal-new-or-existing-entry
       :desc "denote-link" "l" #'denote-link
       :desc "denote-backlinks" "b" #'denote-backlinks
+      :desc "my/denote-journal-open-previous-day" "p" #'my/denote-journal-open-previous-day
+      :desc "my/denote-journal-open-next-day" "n" #'my/denote-journal-open-next-day
       :desc "denote-open-or-create" "f" #'denote-open-or-create)
 
 (use-package denote-journal
@@ -617,8 +622,8 @@ If none are selected, symmetric encryption will be performed.")))
       (:desc "switch-to-buffer" "," #'switch-to-buffer))
 
  ;; load additonal scripts
-(add-to-list 'load-path "../lisp/denote-extras")
 (add-to-list 'load-path "../lisp/logbook-table")
+(require 'logbook-table)
 
 (if (termux-p)
     (load-file (expand-file-name "mobile.el" emacs-dir))
