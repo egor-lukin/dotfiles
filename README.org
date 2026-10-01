@@ -8,7 +8,6 @@ source .env
 #+end_src
 * Guix
 ** Configure
-
 #+begin_src sh
 guix pull
 
@@ -18,4 +17,12 @@ guix home reconfigure home.scm
 #+begin_src sh
 sudo ln -s ~/dotfiles/keyd.conf /etc/keyd/default.conf
 sudo keyd reload
+#+end_src
+* Scripts
+** gpg-merge
+use only asymmetric encryption for encoding/decoding gpg files
+
+#+begin_src sh
+git config merge.gpg.name "GPG merge driver"
+git config merge.gpg.driver "~/dotfiles/scripts/gpg-merge --driver %O %A %B %P"
 #+end_src

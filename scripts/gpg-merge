@@ -1,0 +1,207 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'fileutils'
+require 'open3'
+require 'shellwords'
+require 'tmpdir'
+
+PROG = File.basename($PROGRAM_NAME)
+DEBUG = !(ENV['DEBUG'] || '').empty?
+
+def die(msg, status: 1)
+  warn "#{PROG}: #{msg}"
+  exit status
+end
+
+USAGE = <<~USAGE
+  Usage:
+    #{PROG} [options] <filename.gpg>          manual conflict resolution
+    #{PROG} --driver <%O> <%A> <%B> [<%P>]    git merge driver (called by git)
+    #{PROG} --help
+  Options:
+    --edit-theirs   Edit theirs version instead of the default ours.
+    --driver        Act as a git merge driver: 3-way merge the decrypted
+                    plaintext and write the re-encrypted result over <%A>.
+  Encryption:
+    Public key only. The merged file is encrypted to the same keys the ours
+    side was already encrypted to, read from its own pubkey-enc packets.
+    Decryption goes through gpg-agent, so it prompts via pinentry (a merge
+    driver has no terminal on stdin) and reuses the cached passphrase.
+  Environment:
+    GPG_MERGE_RECIPIENTS  Comma-separated keys to encrypt to, overriding the
+                          recipients inherited from the ours ciphertext.
+    DEBUG                 Keep the temp dir (it holds plaintext) and echo
+                          commands.
+USAGE
+
+# get options
+edit_theirs = false
+driver = false
+args = ARGV.dup
+until args.empty?
+  case args.first
+  when '--edit-theirs' then edit_theirs = true; args.shift
+  when '--driver' then driver = true; args.shift
+  when '--help', '-h' then puts USAGE; exit 0
+  when '--' then args.shift; break
+  when /\A-./ then die "Unknown option: #{args.first}"
+  else break
+  end
+end
+
+# check binaries first
+%w[diff git gpg].each do |bin|
+  found = ENV.fetch('PATH', '').split(File::PATH_SEPARATOR).any? do |dir|
+    File.executable?(File.join(dir, bin)) && !File.directory?(File.join(dir, bin))
+  end
+  die "#{bin} is not in PATH" unless found
+end
+
+# prepare tempdir
+tempdir = Dir.mktmpdir
+at_exit { FileUtils.remove_entry(tempdir) if !DEBUG && File.directory?(tempdir) }
+
+# log commands like the perl version did
+def run(*cmd)
+  warn "+ #{cmd.join(' ')}" if DEBUG
+  system(*cmd)
+  $?
+end
+
+# run a command that must succeed, exiting with its own status if it does not
+def run!(*cmd)
+  status = run(*cmd)
+  return if status.success?
+
+  die "#{cmd.first} failed", status: status.exitstatus || 1
+end
+
+def gpg_decrypt(src, dst)
+  run! 'gpg', '-d', '--yes', '--quiet', '--batch', '-o', dst, src
+end
+
+# recipient key ids of an existing ciphertext, one per line; needs no secret key
+def ciphertext_recipients(src)
+  warn "+ gpg --list-packets --batch #{src}" if DEBUG
+  out, = Open3.capture2e('gpg', '--list-packets', '--batch', src)
+  out.scan(/^:pubkey enc packet:.*?keyid ([0-9A-Fa-f]+)/).flatten
+end
+
+# the --recipient flags to re-encrypt a file that currently looks like `like`
+def recipient_flags(like)
+  override = ENV['GPG_MERGE_RECIPIENTS']
+  unless override.nil? || override.empty?
+    keys = override.split(',').map(&:strip).reject(&:empty?)
+    die 'GPG_MERGE_RECIPIENTS is set but names no key' if keys.empty?
+    return keys.flat_map { |k| ['--recipient', k] }
+  end
+
+  keys = ciphertext_recipients(like)
+  # --hidden-recipient hides the key id behind zeroes; it cannot be recovered
+  if keys.any? { |k| k.match?(/\A0+\z/) }
+    die "#{like} has a hidden recipient; set GPG_MERGE_RECIPIENTS"
+  end
+  if keys.empty?
+    die "no public-key recipients found in #{like}; set GPG_MERGE_RECIPIENTS"
+  end
+
+  keys.flat_map { |k| ['--recipient', k] }
+end
+
+# does this ciphertext carry an ASCII armor header?
+def armored?(path)
+  return false unless path && File.size?(path)
+
+  File.binread(path).match?(/^-----BEGIN PGP MESSAGE-----/)
+end
+
+# encrypt src to dst for `rcpt`, matching the armoring of the original in `like`
+def gpg_encrypt(src, dst, rcpt, like = nil)
+  armor = armored?(like) ? ['--armor'] : []
+  # the recipients come from the file itself, so they are as trusted as it was;
+  # --no-encrypt-to keeps gpg.conf from widening that set behind our back
+  run! 'gpg', '--encrypt', '--yes', '--quiet', '--batch',
+       '--no-encrypt-to', '--trust-model', 'always',
+       *armor, *rcpt, '-o', dst, src
+end
+
+# ---------------------------------------------------------------- driver mode
+if driver
+  die '--driver needs %O %A %B [%P]' if args.size < 3
+
+  base, ours, theirs, path = args
+  label = ->(side) { path ? "#{side}:#{path}" : side }
+
+  # work out the recipients before decrypting, so a file we could not
+  # re-encrypt fails before any plaintext is written
+  rcpt = recipient_flags(ours)
+
+  base_txt = File.join(tempdir, 'base.txt')
+  ours_txt = File.join(tempdir, 'ours.txt')
+  theirs_txt = File.join(tempdir, 'theirs.txt')
+  merged = File.join(tempdir, 'merged.gpg')
+
+  # git passes an empty %O when the two sides share no merge base
+  if File.size?(base)
+    gpg_decrypt base, base_txt
+  else
+    File.binwrite(base_txt, '')
+  end
+  gpg_decrypt ours, ours_txt
+  gpg_decrypt theirs, theirs_txt
+
+  # 3-way merge the plaintext; conflict markers land inside the plaintext,
+  # so the re-encrypted file stays decryptable either way
+  status = run 'git', 'merge-file',
+               '-L', label.call('ours'), '-L', label.call('base'), '-L', label.call('theirs'),
+               ours_txt, base_txt, theirs_txt
+  rc = status.exitstatus
+  die 'git merge-file failed' if rc.nil? || rc >= 128
+
+  gpg_encrypt ours_txt, merged, rcpt, ours
+  # write through, so %A keeps the inode and mode git gave it
+  File.open(ours, 'wb') { |f| f.write(File.binread(merged)) }
+
+  unless rc.zero?
+    warn "#{PROG}: conflict in #{path || ours}; " \
+         'resolve the markers inside the decrypted file'
+    exit 1
+  end
+  exit 0
+end
+
+# ---------------------------------------------------------------- manual mode
+# check argument
+unless args.size == 1
+  warn "#{PROG}: Usage: #{PROG} <gpg-file>"
+  exit 1
+end
+file = args.first
+die "No such file: #{file}" unless File.file?(file)
+
+ours_txt = File.join(tempdir, 'ours.txt')
+theirs_txt = File.join(tempdir, 'theirs.txt')
+diff_out = File.join(tempdir, 'ours-theirs.diff')
+
+# decrypt both versions
+run! 'git', 'checkout', '--ours', file
+gpg_decrypt file, ours_txt
+run! 'git', 'checkout', '--theirs', file
+gpg_decrypt file, theirs_txt
+run! 'git', 'checkout', '--ours', file unless edit_theirs
+
+# diff
+warn "+ diff -u #{ours_txt} #{theirs_txt} > #{diff_out}" if DEBUG
+File.open(diff_out, 'wb') do |out|
+  system('diff', '-u', ours_txt, theirs_txt, out: out)
+end
+
+# invoke editor
+editor = ENV['EDITOR']
+editor = 'emacs' if editor.nil? || editor.empty?
+# emacsclient does not support opening two files
+editor = 'emacs' if editor.start_with?('emacsclient')
+editor_cmd = Shellwords.split(editor)
+die "EDITOR is set but empty: #{editor.inspect}" if editor_cmd.empty?
+run!(*editor_cmd, file, diff_out)
