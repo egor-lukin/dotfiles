@@ -474,7 +474,7 @@ If none are selected, symmetric encryption will be performed.")))
    denote-prompts '(title keywords subdirectory))
   (denote-rename-buffer-mode 1))
 
-(add-to-list 'load-path "../lisp/denote-extras")
+(add-to-list 'load-path (expand-file-name "lisp/denote-extras" workspace-dir))
 (require 'denote-extras)
 
 (map! :leader
@@ -622,7 +622,7 @@ If none are selected, symmetric encryption will be performed.")))
       (:desc "switch-to-buffer" "," #'switch-to-buffer))
 
  ;; load additonal scripts
-(add-to-list 'load-path "../lisp/logbook-table")
+(add-to-list 'load-path (expand-file-name "lisp/logbook-table" workspace-dir))
 (require 'logbook-table)
 
 (if (termux-p)
