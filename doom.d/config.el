@@ -400,7 +400,7 @@ If none are selected, symmetric encryption will be performed.")))
         (call-process
          "bash" nil t nil
          "-lc"
-         (format "bun run tools/search_trains.ts --from %s --to %s --date %s"
+         (format "bun run scripts/search_trains.ts --from %s --to %s --date %s"
                  (shell-quote-argument from)
                  (shell-quote-argument to)
                  (shell-quote-argument date)))))))

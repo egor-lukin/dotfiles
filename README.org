@@ -26,3 +26,8 @@ use only asymmetric encryption for encoding/decoding gpg files
 git config merge.gpg.name "GPG merge driver"
 git config merge.gpg.driver "~/dotfiles/scripts/gpg-merge --driver %O %A %B %P"
 #+end_src
+
+* General Skills
+#+begin_src sh
+ln -s ~/dotfiles/.agents/skills ~/.claude/skills
+#+end_src

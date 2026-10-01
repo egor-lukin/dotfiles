@@ -45,10 +45,15 @@ function parseArgs(): Args {
 }
 
 async function searchTrains({ from, to, date, open }: Args) {
+  // Use the system Chrome by default: the bundled playwright build often lags
+  // behind the installed package and dies with "Executable doesn't exist".
+  // PW_CHROME_PATH overrides with an explicit binary.
+  const executablePath = process.env.PW_CHROME_PATH;
+
   const browser = await chromium.launch({
-    headless: false,
-    // headless: !open,
-    slowMo: open ? 30 : 0
+    headless: !open,
+    slowMo: open ? 30 : 0,
+    ...(executablePath ? { executablePath } : { channel: "chrome" })
   });
 
   const page = await browser.newPage();
@@ -58,9 +63,20 @@ async function searchTrains({ from, to, date, open }: Args) {
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
   });
 
-  const url = `https://www.tutu.ru/poezda/${from}/${to}/?date=${date}&travelers=1`;
+  // tutu.ru route slugs are capitalized per hyphen-separated part
+  // ("Moskva", "Sankt-Peterburg"); a lowercase path 404s.
+  const slug = (s: string) =>
+    s.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join("-");
 
-  await page.goto(url, { waitUntil: "domcontentloaded" });
+  const url = `https://www.tutu.ru/poezda/${slug(from)}/${slug(to)}/?date=${date}&travelers=1`;
+
+  const response = await page.goto(url, { waitUntil: "domcontentloaded" });
+
+  if (response && response.status() >= 400) {
+    throw new Error(
+      `tutu.ru returned ${response.status()} for ${url} — check the city slugs`
+    );
+  }
 
   // wait initial render
   await page.waitForTimeout(3000);
