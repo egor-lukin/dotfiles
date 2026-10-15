@@ -33,6 +33,10 @@
 
 (require 'el-boot)
 
+;; Шимы для функций, которых нет в этой сборке Emacs: нужны до загрузки
+;; любого модуля, потому что их вызывают vertico и corfu.
+(require 'el-compat)
+
 (el-require-modules
  'el-core
  'el-keys
