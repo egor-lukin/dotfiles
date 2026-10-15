@@ -7,22 +7,19 @@
 
 ;;; Code:
 
-(require 'el-core)
-(require 'el-boot)
+(require 'init-core)
 
 (add-to-list 'load-path
              (expand-file-name "lisp/org-mobile-mode" workspace-dir))
-(el-require-module 'org-mobile-mode)
+(require 'org-mobile)
 
 (when (featurep 'org-mobile-mode)
   (add-hook 'org-mode-hook #'org-mobile-mode))
 
-;; Узкий экран: повестка без префиксов, без номеров строк.
 (setq org-agenda-prefix-format '((agenda . " "))
       display-line-numbers-type nil)
 
 (dolist (hook '(prog-mode-hook text-mode-hook conf-mode-hook))
   (remove-hook hook #'display-line-numbers-mode))
 
-(provide 'el-mobile)
-;;; el-mobile.el ends here
+(provide 'init-mobile)

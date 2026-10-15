@@ -1,13 +1,10 @@
 ;; -*- lexical-binding: t; -*-
-;;; el-tools.el --- Git, shells, projects, docker, files, snippets
+;;; init-tools.el --- Git, shells, projects, docker, files, snippets
 
 ;;; Code:
 
-(require 'el-core)
-(require 'el-keys)
-(require 'el-docker)
-(require 'el-project)
-
+(require 'init-core)
+(require 'init-keys)
 
 ;;;; Git
 
@@ -53,55 +50,12 @@
   (when (file-directory-p projects-dir)
     (project-remember-projects-under projects-dir nil)))
 
-(defun el-project-toggle-test ()
-  "Jump between the current file and its test counterpart.
-When no counterpart exists, visit the most likely path so the file can be
-created in place."
-  (interactive)
-  (let* ((project (or (project-current) (user-error "Not in a project")))
-         (root (project-root project))
-         (file (or (buffer-file-name) (user-error "Buffer is not visiting a file")))
-         (relative (file-relative-name file root))
-         (candidates (el-project-counterparts relative)))
-    (unless candidates
-      (user-error "No test mapping for %s" relative))
-    (find-file
-     (expand-file-name
-      (or (seq-find (lambda (c) (file-exists-p (expand-file-name c root))) candidates)
-          (car candidates))
-      root))))
-
-(defun el-project-break-location-copy ()
-  "Copy a debugger break location for the current line to the kill ring."
-  (interactive)
-  (let* ((file (or (buffer-file-name) (user-error "Buffer is not visiting a file")))
-         (root (when-let* ((project (project-current))) (project-root project)))
-         (relative (if root (file-relative-name file root) file))
-         (text (el-project-break-string relative (line-number-at-pos))))
-    (kill-new text)
-    (message "Copied: %s" text)))
-
 
 ;;;; Docker через tramp
 ;; Метод /docker: встроен в Emacs 29+ (tramp-container); docker-tramp не нужен.
 
 (use-package docker
   :commands (docker))
-
-(defun el-docker-find-file ()
-  "Pick a running container and open its filesystem over tramp."
-  (interactive)
-  (let* ((output (shell-command-to-string
-                  (format "docker ps --format '%s'" el-docker-ps-format)))
-         (candidates (el-docker-parse-ps output)))
-    (unless candidates
-      (user-error "No running containers"))
-    (let* ((label (completing-read "Container: " (mapcar #'car candidates) nil t))
-           (entry (cdr (assoc label candidates)))
-           (by (completing-read "Access by: " '("name" "id") nil t))
-           (target (if (equal by "name") (car entry) (cdr entry))))
-      (find-file (format "/docker:%s:/" target)))))
-
 
 ;;;; Файловые команды
 
@@ -214,7 +168,6 @@ created in place."
 
   "f d" '(el-delete-file-and-buffer :which-key "delete file")
   "f R" '(el-rename-file-and-buffer :which-key "rename file")
-  "f b" '(el-project-break-location-copy :which-key "copy break location")
 
   "o d" '(el-docker-find-file :which-key "docker tramp")
   "o t" '(vterm :which-key "vterm")
@@ -237,5 +190,4 @@ created in place."
   "TAB d" '(persp-kill :which-key "kill")
   "TAB ." '(persp-switch :which-key "switch"))
 
-(provide 'el-tools)
-;;; el-tools.el ends here
+(provide 'init-tools)

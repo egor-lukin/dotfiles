@@ -3,8 +3,8 @@
 
 ;;; Code:
 
-(require 'el-core)
-(require 'el-keys)
+(require 'init-core)
+(require 'init-keys)
 
 (use-package gptel
   :vc (:url "https://github.com/karthink/gptel.git" :branch "master" :rev :newest)
@@ -137,5 +137,5 @@
   "a b" '(el-ai-rewrite-buffer :which-key "rewrite buffer")
   "a t" '(agent-shell :which-key "agent shell"))
 
-(provide 'el-ai)
-;;; el-ai.el ends here
+(provide 'init-ai)
+;;; ai.el ends here

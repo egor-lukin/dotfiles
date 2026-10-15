@@ -8,8 +8,7 @@
 
 ;;; Code:
 
-(require 'el-core)
-(require 'el-boot)
+(require 'init-core)
 
 (dolist (dir '("lisp/denote-extras"
                "lisp/logbook-table"
@@ -17,8 +16,10 @@
                "lisp/org-babel-search"))
   (add-to-list 'load-path (expand-file-name dir workspace-dir)))
 
-;; Сбой одного локального пакета не должен ронять остальные.
-(el-require-modules 'denote-extras 'logbook-table 'open-meteo 'ob-search)
+(require 'denote-extras)
+(require 'logbook-table)
+(require 'open-meteo)
+(require 'ob-search)
 
 ;; Выполняется после того, как ob-search и ob-http оказались в load-path.
 (with-eval-after-load 'org
@@ -27,5 +28,5 @@
    '((http . t)
      (search . t))))
 
-(provide 'el-local)
+(provide 'init-local)
 ;;; el-local.el ends here

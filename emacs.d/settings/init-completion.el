@@ -3,10 +3,8 @@
 
 ;;; Code:
 
-(require 'el-keys)
+(require 'init-keys)
 
-
-;;;; Минибуфер
 
 (use-package vertico
   :demand t
@@ -51,8 +49,6 @@
       read-file-name-completion-ignore-case t)
 
 
-;;;; Дополнение в буфере
-
 (use-package corfu
   :demand t
   :config
@@ -72,5 +68,4 @@
 
 (setq tab-always-indent 'complete)
 
-(provide 'el-completion)
-;;; el-completion.el ends here
+(provide 'init-completion)

@@ -28,35 +28,49 @@
       use-package-always-defer nil
       use-package-expand-minimally t)
 
-(dolist (dir '("lib" "modules"))
+(dolist (dir '("lib" "settings"))
   (add-to-list 'load-path (expand-file-name dir user-emacs-directory)))
 
-(require 'el-boot)
+;; (require 'el-boot)
 
 ;; Шимы для функций, которых нет в этой сборке Emacs: нужны до загрузки
 ;; любого модуля, потому что их вызывают vertico и corfu.
 (require 'el-compat)
 
-(el-require-modules
- 'el-core
- 'el-keys
- 'el-completion
- 'el-ui
- 'el-org
- 'el-denote
- 'el-ai
- 'el-tools
- 'el-apps
- 'el-local)
+(require 'init-core)
+(require 'init-keys)
+(require 'init-completion)
+(require 'init-ui)
+(require 'init-org)
+(require 'init-denote)
+(require 'init-ai)
+(require 'init-tools)
+(require 'init-apps)
+(require 'init-local)
 
-;; Если el-core не загрузился, el-termux-p не определена — развилка всё
-;; равно должна выбрать модуль, а не уронить init.el.
-(el-require-module
- (if (and (fboundp 'el-termux-p) (el-termux-p)) 'el-mobile 'el-desktop))
 
-(when el-failed-modules
-  (message "[el] %d module(s) failed: %S"
-           (length el-failed-modules)
-           (mapcar #'car el-failed-modules)))
+(if (termux-p)
+  (require 'mobile)
+  (require 'desktop))
+
+;; (el-require-modules
+;;  'core
+;;  'keys
+;;  'completion
+;;  'ui
+;;  'org
+;;  'denote
+;;  'ai
+;;  'tools
+;;  'apps
+;;  'local)
+
+;; (el-require-module
+;;  (if (and (fboundp 'termux-p) (el-termux-p)) 'mobile 'desktop))
+
+;; (when el-failed-modules
+;;   (message "[el] %d module(s) failed: %S"
+;;            (length el-failed-modules)
+;;            (mapcar #'car el-failed-modules)))
 
 ;;; init.el ends here

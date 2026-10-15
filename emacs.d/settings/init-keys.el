@@ -1,9 +1,9 @@
 ;; -*- lexical-binding: t; -*-
-;;; el-keys.el --- Modal editing and the leader dictionary
+;;; init-keys.el --- Modal editing and the leader dictionary
 
 ;;; Code:
 
-(require 'el-core)
+(require 'init-core)
 
 
 ;;;; Evil
@@ -96,8 +96,6 @@
   "q r" '(restart-emacs :which-key "restart"))
 
 
-;;;; Конфиг под рукой
-
 (defun el-find-config-file ()
   "Open a file from the Emacs configuration directory."
   (interactive)
@@ -105,16 +103,7 @@
     (call-interactively #'find-file)))
 
 
-;;;; Модификаторы
-
-;; keyd (см. dotfiles/keyd.conf) превращает левый Alt в leftmeta, то есть
-;; физическая клавиша Alt посылает Super.  Без этого M-x недостижим: Alt+x
-;; приходит как s-x.  Условие только на Termux: проверять window-system
-;; нельзя — при загрузке конфига в daemon-режиме фрейма ещё нет и она nil,
-;; из-за чего настройка молча не применялась бы к emacsclient.  Под Wayland
-;; переменная просто не используется.
-(unless (el-termux-p)
+(unless (termux-p)
   (setq x-super-keysym 'meta))
 
-(provide 'el-keys)
-;;; el-keys.el ends here
+(provide 'init-keys)

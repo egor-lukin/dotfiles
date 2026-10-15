@@ -1,10 +1,10 @@
 ;; -*- lexical-binding: t; -*-
-;;; el-ui.el --- Theme, modeline, fonts, line numbers, zen
+;;; init-ui.el --- Theme, modeline, fonts, line numbers, zen
 
 ;;; Code:
 
-(require 'el-core)
-(require 'el-keys)
+(require 'init-core)
+(require 'init-keys)
 
 
 ;;;; Тема и modeline
@@ -30,7 +30,7 @@
 ;;;; Шрифты
 ;; :size 50 в doom-font это пиксели; здесь десятые пункта.
 
-(defvar el-font-height 375
+(defvar el-font-height 170
   "Default face height in 1/10 pt.  Пересчёт из `:size 50' в пикселях.")
 
 (defun el-apply-fonts ()
@@ -92,5 +92,4 @@
   "o"   '(:ignore t :which-key "open")
   "o w" '(world-clock :which-key "world clock"))
 
-(provide 'el-ui)
-;;; el-ui.el ends here
+(provide 'init-ui)

@@ -3,8 +3,8 @@
 
 ;;; Code:
 
-(require 'el-core)
-(require 'el-keys)
+(require 'init-core)
+(require 'init-keys)
 
 
 ;;;; Браузер
@@ -32,10 +32,6 @@
   "e y" '(eww-copy-page-url :which-key "copy url"))
 
 
-;;;; Фиды
-;; rmh-elfeed-org-files Doom задавал за нас в модуле rss +org.
-;; Без него elfeed открывается пустым, хотя фиды лежат в ~/org/elfeed.org.
-
 (use-package elfeed
   :commands (elfeed)
   :config
@@ -51,22 +47,15 @@
   (elfeed-org))
 
 
-;;;; Чат
-
 (use-package telega
   :commands (telega)
   :config (setq telega-use-docker t))
 
 
-;;;; Книги
-
 (use-package nov
   :vc (:url "https://depp.brause.cc/nov.el.git" :rev :newest)
   :mode ("\\.epub\\'" . nov-mode))
 
-
-;;;; Перевод
-;; Пин на коммит из doom.d/packages.el: хак search-tkk привязан к версии.
 
 (use-package google-translate
   :vc (:url "https://github.com/atykhonov/google-translate.git"
@@ -84,8 +73,6 @@
     (list 430675 2721866130)))
 
 
-;;;; Финансы
-
 (use-package hledger-mode
   :vc (:url "https://github.com/narendraj9/hledger-mode.git" :rev :newest)
   :mode ("\\.journal\\'" . hledger-mode)
@@ -93,21 +80,16 @@
   (setq hledger-jfile (expand-file-name "finances/ledger.journal" org-dir)))
 
 
-;;;; PDF
-;; pdf-tools требует собранного epdfinfo, которого под Termux нет.
-
 (use-package pdf-tools
-  :unless (el-termux-p)
+  :unless (termux-p)
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :config (pdf-tools-install :no-query))
 
-
-;;;; Календарь
 
 (el-leader!
   "o c" '(calendar :which-key "calendar")
   "o r" '(elfeed :which-key "rss")
   "o g" '(telega :which-key "telegram"))
 
-(provide 'el-apps)
+(provide 'init-apps)
 ;;; el-apps.el ends here
