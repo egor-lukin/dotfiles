@@ -266,6 +266,7 @@ recentf, bookmarks и eln-кеша прямо в git-репозиторий dotf
 | блок `whisper` + `C-h r` | пакета нет в `packages.el`; подтверждено, что не нужен, хотя `~/dev/whisper.cpp` собран |
 | биндинги `SPC k ...` (kubernetes) | `kubernetes-el` отсутствует в `packages.el` и в модулях — биндинги указывают на несуществующие команды |
 | биндинги `SPC [ ...` (rspec) | то же |
+| `multi-term-program-switches` | пакета `multi-term` нет ни в `packages.el`, ни в Doom-модулях — настройка ни на что не влияла (найдено сверкой полноты на этапе 4) |
 | `ivy-re-builders-alist` | модуль `ivy` в `init.el` закомментирован |
 | `helm-mode-fuzzy-match` | helm уходит вместе с переходом на vertico |
 | `org-roam-node-display-template` в `mobile.el` | модуля `org-roam` в `init.el` нет |

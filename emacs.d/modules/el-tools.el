@@ -46,6 +46,13 @@
 
 (setq project-vc-extra-root-markers '(".project.el" "Gemfile" "package.json"))
 
+;; Замена projectile-project-search-path: без этого project-switch-project
+;; показывает пустой список, пока проект не открыли руками.  Один уровень
+;; вложенности, как и у projectile; ~0.1 с на 173 проекта в ~/dev.
+(with-eval-after-load 'project
+  (when (file-directory-p projects-dir)
+    (project-remember-projects-under projects-dir nil)))
+
 (defun el-project-toggle-test ()
   "Jump between the current file and its test counterpart.
 When no counterpart exists, visit the most likely path so the file can be

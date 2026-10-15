@@ -31,3 +31,31 @@ git config merge.gpg.driver "~/dotfiles/scripts/gpg-merge --driver %O %A %B %P"
 #+begin_src sh
 ln -s ~/dotfiles/.agents/skills ~/.claude/skills
 #+end_src
+* Emacs
+Конфигурация в [[file:emacs.d/][emacs.d]]: тонкий init.el с изолированной загрузкой
+модулей, чистая логика в lib/ под тестами, предметные настройки в modules/.
+** Параллельный запуск нового конфига
+#+begin_src sh
+emacs --init-directory ~/dotfiles/emacs.d
+#+end_src
+** Проверки
+batch не грузит init-файл сам (--batch выставляет init-file-user в nil),
+поэтому цели smoke подключают early-init.el и init.el явно.
+#+begin_src sh
+cd ~/dotfiles/emacs.d
+make test          # юнит-тесты чистой логики из lib/, без сети
+make smoke         # полный старт конфигурации
+make smoke-termux  # то же с развилкой под Termux
+#+end_src
+** Установка
+~/.config/emacs отводится в сторону, а не удаляется: это git-репозиторий Doom,
+через него же делается откат.
+#+begin_src sh
+mv ~/.config/emacs ~/.config/emacs.doom
+ln -s ~/dotfiles/emacs.d ~/.config/emacs
+#+end_src
+** Откат на Doom
+#+begin_src sh
+rm ~/.config/emacs
+mv ~/.config/emacs.doom ~/.config/emacs
+#+end_src
