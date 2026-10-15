@@ -16,8 +16,12 @@
   :config
   (setq auto-save-file-name-transforms
         `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-  (startup-redirect-eln-cache
-   (no-littering-expand-var-file-name "eln-cache/")))
+  ;; Emacs builds without native compilation (e.g. Termux) have neither
+  ;; `native-comp-eln-load-path' nor anything to redirect.
+  (when (and (fboundp 'startup-redirect-eln-cache)
+             (boundp 'native-comp-eln-load-path))
+    (startup-redirect-eln-cache
+     (no-littering-expand-var-file-name "eln-cache/"))))
 
 
 (require 'epa-file)
