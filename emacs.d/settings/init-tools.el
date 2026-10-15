@@ -132,8 +132,6 @@
   (persp-mode 1))
 
 
-;;;; Документация и Makefile
-
 (use-package dash-docs
   :vc (:url "https://github.com/dash-docs-el/dash-docs.git" :rev :newest)
   :commands (dash-docs-search)
@@ -148,7 +146,18 @@
   :commands (makefile-executor-execute-project-target))
 
 
-;;;; Биндинги
+(setq world-clock-list
+      '(("UTC" "UTC")
+        ("Etc/GMT-3" "+3 UTC")
+        ("Etc/GMT-4" "+4 UTC"))
+      world-clock-time-format "%a %d %b %R %Z")
+
+;; Выполняется после того, как ob-search и ob-http оказались в load-path.
+(with-eval-after-load 'org
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((http . t)
+     (search . t))))
 
 (el-leader!
   "g"   '(:ignore t :which-key "git")

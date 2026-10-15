@@ -47,9 +47,9 @@
   (elfeed-org))
 
 
-(use-package telega
-  :commands (telega)
-  :config (setq telega-use-docker t))
+;; (use-package telega
+;;   :commands (telega)
+;;   :config (setq telega-use-docker t))
 
 
 (use-package nov
@@ -85,11 +85,6 @@
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :config (pdf-tools-install :no-query))
 
-
-(el-leader!
-  "o c" '(calendar :which-key "calendar")
-  "o r" '(elfeed :which-key "rss")
-  "o g" '(telega :which-key "telegram"))
 
 (provide 'init-apps)
 ;;; el-apps.el ends here

@@ -19,35 +19,34 @@
 
 (use-package nerd-icons :demand t)
 
-(use-package doom-modeline
-  :demand t
-  :config
-  (setq doom-modeline-height 25
-        doom-modeline-buffer-file-name-style 'relative-from-project)
-  (doom-modeline-mode 1))
+;; (use-package doom-modeline
+;;   :demand t
+;;   :config
+;;   (setq doom-modeline-height 25
+;;         doom-modeline-buffer-file-name-style 'relative-from-project)
+;;   (doom-modeline-mode 1))
 
 
 ;;;; Шрифты
 ;; :size 50 в doom-font это пиксели; здесь десятые пункта.
 
-(defvar el-font-height 170
-  "Default face height in 1/10 pt.  Пересчёт из `:size 50' в пикселях.")
+(defvar font-height 170)
 
-(defun el-apply-fonts ()
+(defun apply-fonts ()
   "Apply the configured fonts to the default and variable-pitch faces."
   (set-face-attribute 'default nil
                       :family "monospace"
-                      :height el-font-height
+                      :height font-height
                       :weight 'semi-light)
   (set-face-attribute 'variable-pitch nil
                       :family "sans"
-                      :height el-font-height))
+                      :height font-height))
 
 (when (display-graphic-p)
-  (el-apply-fonts))
+  (apply-fonts))
 
 ;; В daemon/клиентском режиме фрейма при загрузке ещё нет.
-(add-hook 'server-after-make-frame-hook #'el-apply-fonts)
+(add-hook 'server-after-make-frame-hook #'apply-fonts)
 
 
 ;;;; Номера строк и общий вид
@@ -61,35 +60,27 @@
       ring-bell-function #'ignore)
 (column-number-mode 1)
 
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
+;; (use-package rainbow-delimiters
+;;  :hook (prog-mode . rainbow-delimiters-mode))
 
 
 ;;;; Zen
 
-(use-package visual-fill-column
-  :config
-  (setq visual-fill-column-width 100
-        visual-fill-column-center-text t))
+;; (use-package visual-fill-column
+;;  :config
+;;  (setq visual-fill-column-width 100
+;;        visual-fill-column-center-text t))
 
-(use-package writeroom-mode
-  :config
-  (setq writeroom-width 100))
+;; (use-package writeroom-mode
+;;  :config
+;;  (setq writeroom-width 100))
 
-(el-leader!
-  "t z" '(writeroom-mode :which-key "zen"))
+;; (el-leader!
+;;  "t z" '(writeroom-mode :which-key "zen"))
 
 
-;;;; Мировые часы
-
-(setq world-clock-list
-      '(("UTC" "UTC")
-        ("Etc/GMT-3" "+3 UTC")
-        ("Etc/GMT-4" "+4 UTC"))
-      world-clock-time-format "%a %d %b %R %Z")
-
-(el-leader!
-  "o"   '(:ignore t :which-key "open")
-  "o w" '(world-clock :which-key "world clock"))
+;;(el-leader!
+;;  "o"   '(:ignore t :which-key "open")
+;;  "o w" '(world-clock :which-key "world clock"))
 
 (provide 'init-ui)
