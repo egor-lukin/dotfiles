@@ -1,1 +1,7 @@
 .env
+emacs.d/elpa/
+emacs.d/var/
+emacs.d/etc/
+emacs.d/eln-cache/
+emacs.d/transient/
+emacs.d/.cache/

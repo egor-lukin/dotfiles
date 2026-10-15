@@ -309,6 +309,8 @@ cd ~/dotfiles/emacs.d && emacs -Q -batch -L lib -l tests/el-boot-test.el -f ert-
 EMACS ?= emacs
 TESTS := $(wildcard tests/*-test.el)
 
+LOAD := -l $(CURDIR)/early-init.el -l $(CURDIR)/init.el
+
 CHECK := (if el-failed-modules \
               (error "failed modules: %S" el-failed-modules) \
             (message "smoke ok"))
@@ -322,11 +324,11 @@ test:
 
 ## Полный старт конфигурации.  Первый запуск скачивает пакеты.
 smoke:
-	$(EMACS) -batch --init-directory $(CURDIR) --eval '$(CHECK)'
+	$(EMACS) -batch --init-directory $(CURDIR) $(LOAD) --eval '$(CHECK)'
 
 ## То же, но с видом на Termux: проверяет платформенную развилку.
 smoke-termux:
-	TERMUX_VERSION=1 $(EMACS) -batch --init-directory $(CURDIR) --eval '$(CHECK)'
+	TERMUX_VERSION=1 $(EMACS) -batch --init-directory $(CURDIR) $(LOAD) --eval '$(CHECK)'
 ```
 
 - [ ] **Step 8: Дополнить `.gitignore`**
@@ -464,7 +466,7 @@ cd ~/dotfiles/emacs.d && make smoke 2>&1 | tail -3
 - [ ] **Step 4: Проверить значения переменных и побочные эффекты**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (princ (format "org-dir=%s termux=%s autosave=%s revert=%s\n" org-dir (el-termux-p) auto-save-visited-mode global-auto-revert-mode)) (unless (file-directory-p org-dir) (error "org-dir missing")))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (princ (format "org-dir=%s termux=%s autosave=%s revert=%s\n" org-dir (el-termux-p) auto-save-visited-mode global-auto-revert-mode)) (unless (file-directory-p org-dir) (error "org-dir missing")))'
 ```
 
 Ожидается: `org-dir=/home/azx/org/ termux=nil autosave=t revert=t` и отсутствие ошибки.
@@ -617,7 +619,7 @@ cd ~/dotfiles && git add emacs.d/modules/el-core.el && git commit -m "feat(emacs
 Загрузка `el-completion` ещё не сделана, поэтому `consult-*` команды пока не определены — биндинг на несуществующую команду это нормально для `general`, ошибки не будет.
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (unless (fboundp (quote el-leader!)) (error "el-leader! missing")) (unless evil-mode (error "evil-mode off")) (unless (keymapp el-leader-map) (error "no leader map")) (unless (keymap-lookup el-leader-map "f f") (error "SPC f f unbound")) (message "keys ok"))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (unless (fboundp (quote el-leader!)) (error "el-leader! missing")) (unless evil-mode (error "evil-mode off")) (unless (keymapp el-leader-map) (error "no leader map")) (unless (keymap-lookup el-leader-map "f f") (error "SPC f f unbound")) (message "keys ok"))'
 ```
 
 Ожидается: `keys ok`.
@@ -625,7 +627,7 @@ cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (un
 - [ ] **Step 3: Проверить Review Focus 4 — запуск с видом на Termux**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(princ (format "termux=%s super=%s\n" (el-termux-p) x-super-keysym))' && TERMUX_VERSION=1 emacs -batch --init-directory $(pwd) --eval '(princ (format "termux=%s super=%s\n" (el-termux-p) x-super-keysym))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(princ (format "termux=%s super=%s\n" (el-termux-p) x-super-keysym))' && TERMUX_VERSION=1 emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(princ (format "termux=%s super=%s\n" (el-termux-p) x-super-keysym))'
 ```
 
 Ожидается: в обоих случаях `super=nil` (в батче `window-system` равен `nil`, то есть ветка не исполняется), во втором вызове `termux=1`. Факт, который проверяется: `x-super-keysym` не выставляется там, где нет X11.
@@ -739,7 +741,7 @@ cd ~/dotfiles && git add emacs.d/modules/el-keys.el && git commit -m "feat(emacs
 - [ ] **Step 2: Проверить, что команды из ядра словаря теперь существуют**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(dolist (fn (quote (consult-buffer consult-line consult-ripgrep consult-fd consult-imenu))) (unless (fboundp fn) (error "%s missing" fn))) ' --eval '(progn (unless vertico-mode (error "vertico off")) (unless global-corfu-mode (error "corfu off")) (message "completion ok"))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(dolist (fn (quote (consult-buffer consult-line consult-ripgrep consult-fd consult-imenu))) (unless (fboundp fn) (error "%s missing" fn))) ' --eval '(progn (unless vertico-mode (error "vertico off")) (unless global-corfu-mode (error "corfu off")) (message "completion ok"))'
 ```
 
 Ожидается: `completion ok`.
@@ -875,7 +877,7 @@ cd ~/dotfiles && git add emacs.d/modules/el-completion.el && git commit -m "feat
 - [ ] **Step 2: Проверить загрузку темы и modeline**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (unless (memq (quote doom-monokai-pro) custom-enabled-themes) (error "theme not loaded: %S" custom-enabled-themes)) (unless doom-modeline-mode (error "modeline off")) (message "ui ok"))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (unless (memq (quote doom-monokai-pro) custom-enabled-themes) (error "theme not loaded: %S" custom-enabled-themes)) (unless doom-modeline-mode (error "modeline off")) (message "ui ok"))'
 ```
 
 Ожидается: `ui ok`.
@@ -1194,7 +1196,7 @@ org repository cannot break the configuration."
 - [ ] **Step 7: Проверить Review Focus 1 — отсутствующий каталог проектов**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (let ((el-org-projects-dir "/tmp/el-no-such-dir-12345/")) (unless (null (el-org-agenda-files)) (error "expected nil"))) (unless (el-org-agenda-files) (error "real agenda files empty")) (message "agenda ok: %d files" (length (el-org-agenda-files))))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (let ((el-org-projects-dir "/tmp/el-no-such-dir-12345/")) (unless (null (el-org-agenda-files)) (error "expected nil"))) (unless (el-org-agenda-files) (error "real agenda files empty")) (message "agenda ok: %d files" (length (el-org-agenda-files))))'
 ```
 
 Ожидается: `agenda ok: N files`, где N больше нуля. Факт, который проверяется: отсутствующий каталог даёт `nil`, а не ошибку.
@@ -1202,7 +1204,7 @@ cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (le
 - [ ] **Step 8: Проверить загрузку модуля и capture-шаблоны**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (unless (= 4 (length org-capture-templates)) (error "expected 4 templates, got %d" (length org-capture-templates))) (unless (featurep (quote org-habit)) (error "org-habit missing")) (unless org-clock-persist (error "clock persist off")) (message "org ok"))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (unless (= 4 (length org-capture-templates)) (error "expected 4 templates, got %d" (length org-capture-templates))) (unless (featurep (quote org-habit)) (error "org-habit missing")) (unless org-clock-persist (error "clock persist off")) (message "org ok"))'
 ```
 
 Ожидается: `org ok`. Модуля `el-denote` ещё нет, поэтому шаблоны `n` и `b` пока сошлются на неопределённые функции — это проявится только при вызове capture, не при загрузке.
@@ -1313,7 +1315,7 @@ ls ~/org/journal | wc -l
 - [ ] **Step 3: Проверить загрузку и биндинги**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (unless (string= (expand-file-name "~/org/") (expand-file-name denote-directory)) (error "denote-directory=%s" denote-directory)) (unless (eq (quote denote) (keymap-lookup el-leader-map "d n")) (error "SPC d n -> %S" (keymap-lookup el-leader-map "d n"))) (message "denote ok"))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (unless (string= (expand-file-name "~/org/") (expand-file-name denote-directory)) (error "denote-directory=%s" denote-directory)) (unless (eq (quote denote) (keymap-lookup el-leader-map "d n")) (error "SPC d n -> %S" (keymap-lookup el-leader-map "d n"))) (message "denote ok"))'
 ```
 
 Ожидается: `denote ok`. Именно это закрепляет исправление: `SPC d n` ведёт на `denote`, а не на навигацию по дням.
@@ -1321,7 +1323,7 @@ cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (un
 - [ ] **Step 4: Проверить Review Focus 5 — старт не создаёт запись журнала**
 
 ```bash
-cd ~/dotfiles/emacs.d && for i in 1 2 3; do emacs -batch --init-directory $(pwd) --eval '(message "start %d" 1)' >/dev/null 2>&1; done; ls ~/org/journal | wc -l
+cd ~/dotfiles/emacs.d && for i in 1 2 3; do emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(message "start %d" 1)' >/dev/null 2>&1; done; ls ~/org/journal | wc -l
 ```
 
 Ожидается: то же число, что на шаге 1. Если выросло — advice сработал не там, где задумано, или `denote-journal` всё ещё вызывается на загрузке.
@@ -1398,7 +1400,7 @@ cd ~/dotfiles && head -25 lisp/denote-extras/denote-extras.el lisp/logbook-table
 - [ ] **Step 3: Проверить, что все четыре пакета загрузились**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (dolist (f (quote (denote-extras logbook-table open-meteo ob-search))) (unless (featurep f) (error "%s not loaded" f))) (dolist (fn (quote (my/denote-journal-open-previous-day my/denote-journal-open-next-day))) (unless (fboundp fn) (error "%s missing" fn))) (message "local ok"))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (dolist (f (quote (denote-extras logbook-table open-meteo ob-search))) (unless (featurep f) (error "%s not loaded" f))) (dolist (fn (quote (my/denote-journal-open-previous-day my/denote-journal-open-next-day))) (unless (fboundp fn) (error "%s missing" fn))) (message "local ok"))'
 ```
 
 Ожидается: `local ok`. Если какой-то пакет в `el-failed-modules` — посмотреть текст ошибки в выводе и дописать недостающий `require` в сам пакет в `dotfiles/lisp/`.
@@ -1406,7 +1408,7 @@ cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (do
 - [ ] **Step 4: Проверить языки babel**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (require (quote org)) (dolist (lang (quote (http search))) (unless (assq lang org-babel-load-languages) (error "%s not registered" lang))) (message "babel ok"))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (require (quote org)) (dolist (lang (quote (http search))) (unless (assq lang org-babel-load-languages) (error "%s not registered" lang))) (message "babel ok"))'
 ```
 
 Ожидается: `babel ok`.
@@ -1609,7 +1611,7 @@ pass show env/OPENROUTER_API_KEY | head -c 8 && echo "...ok"
 - [ ] **Step 3: Проверить загрузку и регистрацию бэкендов**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (require (quote gptel)) (unless (eq gptel-default-mode (quote org-mode)) (error "mode=%S" gptel-default-mode)) (dolist (b (quote ("OpenRouter" "Ollama"))) (unless (assoc b gptel--known-backends) (error "backend %s missing" b))) (unless (fboundp (quote el-ai-find-train-tickets)) (error "train tool fn missing")) (message "ai ok: backends=%S" (mapcar (function car) gptel--known-backends)))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (require (quote gptel)) (unless (eq gptel-default-mode (quote org-mode)) (error "mode=%S" gptel-default-mode)) (dolist (b (quote ("OpenRouter" "Ollama"))) (unless (assoc b gptel--known-backends) (error "backend %s missing" b))) (unless (fboundp (quote el-ai-find-train-tickets)) (error "train tool fn missing")) (message "ai ok: backends=%S" (mapcar (function car) gptel--known-backends)))'
 ```
 
 Ожидается: `ai ok: backends=("Ollama" "OpenRouter")` в каком-то порядке. Если `gptel--known-backends` переименована в текущем master gptel — взять актуальное имя из `gptel.el` в `emacs.d/elpa/` и поправить проверку, а не конфиг.
@@ -1619,7 +1621,7 @@ cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (re
 Ключ обёрнут в lambda, то есть `pass` не должен вызываться при старте.
 
 ```bash
-cd ~/dotfiles/emacs.d && time emacs -batch --init-directory $(pwd) --eval '(message "loaded")'
+cd ~/dotfiles/emacs.d && time emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(message "loaded")'
 ```
 
 Ожидается: старт без запроса пароля GPG и без зависания.
@@ -1627,7 +1629,7 @@ cd ~/dotfiles/emacs.d && time emacs -batch --init-directory $(pwd) --eval '(mess
 - [ ] **Step 5: Проверить тул поиска поездов**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(princ (substring (el-ai-find-train-tickets "Moskva" "Sankt-Peterburg" "20.10.2026") 0 300))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(princ (substring (el-ai-find-train-tickets "Moskva" "Sankt-Peterburg" "20.10.2026") 0 300))'
 ```
 
 Ожидается: вывод скрипта (список поездов либо его сообщение об ошибке). Проверяется, что `default-directory` указывает в `~/dotfiles` и `bun` находится.
@@ -2156,7 +2158,7 @@ created in place."
 - [ ] **Step 10: Проверить загрузку модуля**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (dolist (fn (quote (el-project-toggle-test el-docker-find-file el-delete-file-and-buffer el-rename-file-and-buffer el-project-break-location-copy))) (unless (commandp fn) (error "%s is not a command" fn))) (unless yas-global-mode (error "yasnippet off")) (unless smartparens-global-mode (error "smartparens off")) (unless persp-mode (error "persp off")) (unless (file-directory-p (expand-file-name "snippets" org-dir)) (error "org snippets dir missing")) (message "tools ok"))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (dolist (fn (quote (el-project-toggle-test el-docker-find-file el-delete-file-and-buffer el-rename-file-and-buffer el-project-break-location-copy))) (unless (commandp fn) (error "%s is not a command" fn))) (unless yas-global-mode (error "yasnippet off")) (unless smartparens-global-mode (error "smartparens off")) (unless persp-mode (error "persp off")) (unless (file-directory-p (expand-file-name "snippets" org-dir)) (error "org snippets dir missing")) (message "tools ok"))'
 ```
 
 Ожидается: `tools ok`.
@@ -2164,7 +2166,7 @@ cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (do
 - [ ] **Step 11: Проверить переход impl/test на реальном файле этого репозитория**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(princ (format "%S\n" (el-project-counterparts "lib/el-clock.el")))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(princ (format "%S\n" (el-project-counterparts "lib/el-clock.el")))'
 ```
 
 Ожидается: список, содержащий `"lib/el-clock-test.el"` — файл, который реально существует после задачи 6.
@@ -2337,7 +2339,7 @@ head -5 ~/org/elfeed.org && grep -c "^\*" ~/org/elfeed.org
 Это главная проверка задачи: именно здесь ломался бы молчаливый переход.
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (require (quote elfeed)) (require (quote elfeed-org)) (unless rmh-elfeed-org-files (error "rmh-elfeed-org-files empty")) (unless (file-exists-p (car rmh-elfeed-org-files)) (error "feeds file missing: %s" (car rmh-elfeed-org-files))) (elfeed-org) (unless elfeed-feeds (error "no feeds loaded")) (message "feeds ok: %d" (length elfeed-feeds)))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (require (quote elfeed)) (require (quote elfeed-org)) (unless rmh-elfeed-org-files (error "rmh-elfeed-org-files empty")) (unless (file-exists-p (car rmh-elfeed-org-files)) (error "feeds file missing: %s" (car rmh-elfeed-org-files))) (elfeed-org) (unless elfeed-feeds (error "no feeds loaded")) (message "feeds ok: %d" (length elfeed-feeds)))'
 ```
 
 Ожидается: `feeds ok: N`, где N больше нуля.
@@ -2345,7 +2347,7 @@ cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (re
 - [ ] **Step 4: Проверить остальные настройки модуля**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(progn (unless (eq browse-url-browser-function (function eww-browse-url)) (error "browser=%S" browse-url-browser-function)) (unless (equal "ru" google-translate-default-target-language) (error "translate target wrong")) (unless (equal (list 430675 2721866130) (google-translate--search-tkk)) (error "tkk hack missing")) (unless (string-suffix-p "finances/ledger.journal" hledger-jfile) (error "hledger file=%s" hledger-jfile)) (unless (assoc "\\.epub\\'" auto-mode-alist) (error "epub not registered")) (message "apps ok"))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(progn (unless (eq browse-url-browser-function (function eww-browse-url)) (error "browser=%S" browse-url-browser-function)) (unless (equal "ru" google-translate-default-target-language) (error "translate target wrong")) (unless (equal (list 430675 2721866130) (google-translate--search-tkk)) (error "tkk hack missing")) (unless (string-suffix-p "finances/ledger.journal" hledger-jfile) (error "hledger file=%s" hledger-jfile)) (unless (assoc "\\.epub\\'" auto-mode-alist) (error "epub not registered")) (message "apps ok"))'
 ```
 
 Ожидается: `apps ok`.
@@ -2440,7 +2442,7 @@ cd ~/dotfiles/emacs.d && make smoke && make smoke-termux
 - [ ] **Step 4: Проверить, что развилка выбрала правильный модуль**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) --eval '(princ (format "desktop=%s mobile=%s\n" (featurep (quote el-desktop)) (featurep (quote el-mobile))))' && TERMUX_VERSION=1 emacs -batch --init-directory $(pwd) --eval '(princ (format "desktop=%s mobile=%s agenda-prefix=%S\n" (featurep (quote el-desktop)) (featurep (quote el-mobile)) org-agenda-prefix-format))'
+cd ~/dotfiles/emacs.d && emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(princ (format "desktop=%s mobile=%s\n" (featurep (quote el-desktop)) (featurep (quote el-mobile))))' && TERMUX_VERSION=1 emacs -batch --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(princ (format "desktop=%s mobile=%s agenda-prefix=%S\n" (featurep (quote el-desktop)) (featurep (quote el-mobile)) org-agenda-prefix-format))'
 ```
 
 Ожидается: первый вызов `desktop=t mobile=nil`, второй `desktop=nil mobile=t` с `agenda-prefix=((agenda . " "))`.
@@ -2494,7 +2496,7 @@ cd ~/dotfiles/emacs.d && make test && make smoke && make smoke-termux
 - [ ] **Step 5: Замерить время старта**
 
 ```bash
-cd ~/dotfiles/emacs.d && emacs --init-directory $(pwd) --eval '(message "startup: %s" (emacs-init-time))' --eval '(kill-emacs)'
+cd ~/dotfiles/emacs.d && emacs --init-directory $(pwd) -l $(pwd)/early-init.el -l $(pwd)/init.el --eval '(message "startup: %s" (emacs-init-time))' --eval '(kill-emacs)'
 ```
 
 Записать значение в аудит. Для сравнения — то же на Doom:
