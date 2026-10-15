@@ -1,19 +1,8 @@
 ;; -*- lexical-binding: t; -*-
-;;; init-core.el --- Paths, identity, encryption, file hygiene
 
-;;; Code:
-
-;;;; Пути и личные данные
-
-(defvar workspace-dir (expand-file-name "~/dotfiles/")
-  "Корень репозитория dotfiles.  Имя сохранено из doom.d/config.el,
-на него опираются пакеты в dotfiles/lisp/.")
-
-(defvar projects-dir (expand-file-name "~/dev/")
-  "Каталог с рабочими проектами.")
-
-(defvar org-dir (expand-file-name "~/org/")
-  "Корень org-файлов.")
+(defvar workspace-dir (expand-file-name "~/dotfiles/"))
+(defvar projects-dir (expand-file-name "~/dev/"))
+(defvar org-dir (expand-file-name "~/org/"))
 
 (setq user-full-name "Egor Lukin"
       user-mail-address "mail@egorlukin.me")
@@ -32,9 +21,6 @@
 
 
 (require 'epa-file)
-
-;; auto-encryption-mode включён по умолчанию с Emacs 29; повторный
-;; epa-file-enable только печатает предупреждение при каждом старте.
 (unless (bound-and-true-p auto-encryption-mode)
   (auto-encryption-mode 1))
 

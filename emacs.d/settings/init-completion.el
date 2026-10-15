@@ -1,7 +1,4 @@
 ;; -*- lexical-binding: t; -*-
-;;; el-completion.el --- Minibuffer and in-buffer completion
-
-;;; Code:
 
 (require 'init-keys)
 
@@ -30,16 +27,6 @@
   (setq consult-narrow-key "<"
         xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref))
-
-(use-package embark
-  :demand t
-  ;; M-. не занимаем: это xref-find-definitions.
-  :bind (("C-." . embark-act)
-         ("C-;" . embark-dwim)))
-
-(use-package embark-consult
-  :after (embark consult)
-  :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 (savehist-mode 1)
 (recentf-mode 1)

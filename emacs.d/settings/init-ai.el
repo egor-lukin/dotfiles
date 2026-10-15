@@ -1,8 +1,4 @@
 ;; -*- lexical-binding: t; -*-
-;;; el-ai.el --- gptel, agent shell and LLM tools
-
-;;; Code:
-
 (require 'init-core)
 (require 'init-keys)
 
@@ -55,12 +51,7 @@
     :temperature 0.1))
 
 
-;;;; Тулы
-
 (defmacro gptel-make-safe-tool (&rest args)
-  "Define a gptel tool from ARGS whose function never signals.
-Ошибка тула превращается в текст для модели, иначе один сбойный вызов
-обрывает весь диалог."
   (let ((name (plist-get args :name))
         (fn   (plist-get args :function)))
     `(gptel-make-tool
@@ -122,8 +113,6 @@
   :after gptel)
 
 
-;;;; Биндинги
-
 (el-leader!
   "a"   '(:ignore t :which-key "ai")
   "a g" '(gptel :which-key "gptel")
@@ -138,4 +127,3 @@
   "a t" '(agent-shell :which-key "agent shell"))
 
 (provide 'init-ai)
-;;; ai.el ends here

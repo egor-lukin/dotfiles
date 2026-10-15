@@ -1,24 +1,16 @@
 ;; -*- lexical-binding: t; -*-
-;;; init-tools.el --- Git, shells, projects, docker, files, snippets
-
-;;; Code:
 
 (require 'init-core)
 (require 'init-keys)
 
-;;;; Git
-
 (use-package magit
-  :commands (magit-status magit-blame-addition magit-log-current))
+  :ensure t)
 
 (use-package diff-hl
   :demand t
   :config
   (global-diff-hl-mode 1)
   (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh))
-
-
-;;;; Терминалы
 
 (use-package vterm
   :commands (vterm vterm-other-window)
@@ -35,29 +27,14 @@
 (with-eval-after-load 'eshell
   (add-hook 'eshell-alias-load-hook #'el-eshell-load-bash-aliases))
 
-(use-package tramp-term
-  :commands (tramp-term))
-
-
-;;;; Проекты
+(use-package tramp-term)
 
 (setq project-vc-extra-root-markers '(".project.el" "Gemfile" "package.json"))
 
-;; Замена projectile-project-search-path: без этого project-switch-project
-;; показывает пустой список, пока проект не открыли руками.  Один уровень
-;; вложенности, как и у projectile; ~0.1 с на 173 проекта в ~/dev.
 (with-eval-after-load 'project
-  (when (file-directory-p projects-dir)
-    (project-remember-projects-under projects-dir nil)))
+  (project-remember-projects-under projects-dir nil)
+  (project-remember-projects-under org-dir nil))
 
-
-;;;; Docker через tramp
-;; Метод /docker: встроен в Emacs 29+ (tramp-container); docker-tramp не нужен.
-
-(use-package docker
-  :commands (docker))
-
-;;;; Файловые команды
 
 (defun el-delete-file-and-buffer ()
   "Delete the file the current buffer visits, then kill the buffer."
@@ -84,13 +61,8 @@
     (set-buffer-modified-p nil)))
 
 
-;;;; Пароли
-
 (use-package password-store
   :commands (password-store-get password-store-copy password-store-edit))
-
-
-;;;; Dired
 
 (setq dired-listing-switches "-alh --group-directories-first"
       dired-dwim-target t
@@ -99,8 +71,6 @@
 (use-package diredfl
   :hook (dired-mode . diredfl-mode))
 
-
-;;;; Сниппеты
 
 (use-package yasnippet
   :demand t
@@ -111,8 +81,6 @@
   (yas-global-mode 1))
 
 
-;;;; Скобки
-
 (use-package smartparens
   :demand t
   :config
@@ -120,8 +88,6 @@
   (smartparens-global-mode 1)
   (show-paren-mode 1))
 
-
-;;;; Воркспейсы
 
 (use-package persp-mode
   :demand t
@@ -152,12 +118,11 @@
         ("Etc/GMT-4" "+4 UTC"))
       world-clock-time-format "%a %d %b %R %Z")
 
-;; Выполняется после того, как ob-search и ob-http оказались в load-path.
-(with-eval-after-load 'org
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((http . t)
-     (search . t))))
+;; (with-eval-after-load 'org
+;;   (org-babel-do-load-languages
+;;    'org-babel-load-languages
+;;    '((http . t)
+;;      (search . t))))
 
 (el-leader!
   "g"   '(:ignore t :which-key "git")

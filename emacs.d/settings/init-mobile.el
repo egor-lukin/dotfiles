@@ -1,16 +1,10 @@
 ;; -*- lexical-binding: t; -*-
-;;; el-mobile.el --- Termux-only settings
-
-;;; Commentary:
-;; Грузится последним, поэтому может переопределять настройки любого
-;; модуля выше.  org-mobile-mode живёт в dotfiles/lisp и нужен только здесь.
-
-;;; Code:
 
 (require 'init-core)
 
 (add-to-list 'load-path
              (expand-file-name "lisp/org-mobile-mode" workspace-dir))
+
 (require 'org-mobile)
 
 (when (featurep 'org-mobile-mode)

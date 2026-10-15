@@ -1,8 +1,4 @@
 ;; -*- lexical-binding: t; -*-
-;;; el-denote.el --- Denote notes and journal
-
-;;; Code:
-
 (require 'init-core)
 (require 'init-keys)
 
@@ -24,24 +20,15 @@
         denote-journal-keyword "journal"
         denote-journal-title-format "%Y-%m-%d"))
 
-
-;;;; Журнал в повестке
-;; Review Focus 5: denote-journal-path-to-new-or-existing-entry создаёт
-;; файл, поэтому вызывать его на загрузке конфига нельзя — каждый старт
-;; Emacs плодил бы пустую запись.  Делаем это при открытии повестки.
-
-(defun el-denote-journal-ensure-agenda-entry (&rest _)
+(defun my/denote-journal-ensure-agenda-entry (&rest _)
   "Add today's journal entry to `org-agenda-files' if it is not there yet."
   (require 'denote-journal)
   (let ((path (denote-journal-path-to-new-or-existing-entry)))
     (when (and path (not (member path org-agenda-files)))
       (push path org-agenda-files))))
 
-(advice-add 'org-agenda :before #'el-denote-journal-ensure-agenda-entry)
+(advice-add 'org-agenda :before #'my/denote-journal-ensure-agenda-entry)
 
-
-;;;; Навигация по дням
-;; Определены в dotfiles/lisp/denote-extras, который грузит el-local.
 
 (el-leader!
   "d"   '(:ignore t :which-key "denote")

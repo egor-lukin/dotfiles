@@ -1,33 +1,17 @@
 ;; -*- lexical-binding: t; -*-
-;;; el-apps.el --- Browser, feeds, chat, books, translation, finances, pdf
-
-;;; Code:
-
 (require 'init-core)
 (require 'init-keys)
 
 
-;;;; Браузер
-
-(setq browse-url-browser-function #'eww-browse-url)
-
-(defun el-eww-search-current-line ()
-  "Trim the current line, select it and search the web for it with eww."
-  (interactive)
-  (let* ((start (line-beginning-position))
-         (end (line-end-position))
-         (trimmed (string-trim (buffer-substring-no-properties start end))))
-    (delete-region start end)
-    (insert trimmed)
-    (set-mark (point))
-    (goto-char start)
-    (eww-search-words)))
+;; External links go to the system browser; eww stays available on demand
+;; (`C-u' before a link-following command, plus the SPC e bindings below).
+(setq browse-url-browser-function #'browse-url-default-browser
+      browse-url-secondary-browser-function #'eww-browse-url)
 
 (el-leader!
   "e"   '(:ignore t :which-key "eww")
   "e e" '(eww :which-key "eww")
   "e l" '(eww-list-buffers :which-key "list buffers")
-  "e f" '(el-eww-search-current-line :which-key "search current line")
   "e s" '(eww-search-words :which-key "search words")
   "e y" '(eww-copy-page-url :which-key "copy url"))
 
@@ -45,7 +29,6 @@
   :config
   (setq rmh-elfeed-org-files (list (expand-file-name "elfeed.org" org-dir)))
   (elfeed-org))
-
 
 ;; (use-package telega
 ;;   :commands (telega)
@@ -87,4 +70,3 @@
 
 
 (provide 'init-apps)
-;;; el-apps.el ends here

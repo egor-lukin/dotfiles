@@ -1,7 +1,4 @@
 ;; -*- lexical-binding: t; -*-
-;;; el-org.el --- Org mode, GTD, clocking, capture, drill
-
-;;; Code:
 
 (require 'init-core)
 (require 'init-keys)
@@ -40,55 +37,45 @@ agree."
   "Format TASK and MINUTES as a one-line clock summary."
   (format "%s (%d min)" task minutes))
 
+(defvar my/org-projects-dir (expand-file-name "projects/" org-dir))
 
-;;;; Файлы повестки
-;; Review Focus 1: directory-files на отсутствующем каталоге сигналит
-;; file-missing и обрывает загрузку модуля целиком.
-
-(defvar el-org-projects-dir (expand-file-name "projects/" org-dir)
-  "Directory whose org files make up the agenda.")
-
-(defun el-org-agenda-files ()
-  "Return the agenda files from `el-org-projects-dir'.
-Return nil when the directory is missing, so a renamed or not-yet-cloned
-org repository cannot break the configuration."
-  (when (file-directory-p el-org-projects-dir)
-    (directory-files el-org-projects-dir t "\\.org\\(\\.gpg\\)?\\'")))
-
-
-;;;; Org
+(defun my/org-agenda-files ()
+  (when (file-directory-p my/org-projects-dir)
+    (directory-files my/org-projects-dir t "\\.org\\(\\.gpg\\)?\\'")))
 
 (use-package org
   :ensure nil
   :config
   (require 'org-habit)
   (setq org-directory org-dir
-        org-agenda-files (el-org-agenda-files)
+        org-agenda-files (my/org-agenda-files)
         org-log-into-drawer t
         org-log-done t
         org-use-fast-todo-selection t
+        org-return-follows-link t
+        org-mouse-1-follows-link t
         org-refile-targets '((org-agenda-files :maxlevel . 2))
         org-todo-keywords '((sequence "TODO" "IN-PROGRESS" "WAIT" "|" "DONE" "CLOSED"))
         org-habit-show-habits-only-for-today t
         org-habit-preceding-days 25
         org-habit-following-days 3
-        org-attach-directory (expand-file-name "~/photos/attachments")
+        org-attach-directory (expand-file-name "~/org/attachments")
         org-agenda-prefix-format '((agenda . " %i %-5:c%?-5t% s"))
         org-agenda-overriding-columns-format
         "%100ITEM  %TODO %7EFFORT %PRIORITY     100%TAGS"))
 
-
-;;;; Хронометраж
+;; Evil's normal state shadows `org-mode-map', so RET has to be bound on the
+;; `evil-org-mode' minor mode to reach `org-open-at-point'.
+(with-eval-after-load 'evil-org
+  (evil-define-key '(normal visual) 'evil-org-mode
+    (kbd "RET") #'org-open-at-point))
 
 (setq org-clock-persist t
       org-clock-persist-query-resume nil)
 (with-eval-after-load 'org
   (org-clock-persistence-insinuate))
 
-(defvar el-org-polybar-idle-text "no active clocks!"
-  "Text reported to polybar when no clock is running.")
-
-(defun el-org-polybar-clock-line ()
+(defun my/org-clock-show-active ()
   "Report the running clock as a single line for polybar."
   (interactive)
   (message
@@ -97,10 +84,7 @@ org repository cannot break the configuration."
        (el-clock-format-line
         org-clock-heading
         (floor (org-time-convert-to-integer (time-since org-clock-start-time)) 60))
-     el-org-polybar-idle-text)))
-
-
-;;;; Capture
+     "no active clocks!")))
 
 (setq org-capture-templates
       '(("e" "English word" entry
@@ -127,8 +111,6 @@ org repository cannot break the configuration."
          (file "templates/buffer.org"))))
 
 
-;;;; Drill и помодоро
-
 (use-package org-drill
   :vc (:url "https://gitlab.com/phillord/org-drill.git" :rev :newest)
   :commands (org-drill org-drill-resume)
@@ -139,18 +121,9 @@ org repository cannot break the configuration."
   :commands (org-pomodoro))
 
 
-;;;; Babel
-
 (use-package ob-async
   :after org
   :demand t)
-
-(use-package ob-http
-  :vc (:url "https://github.com/zweifisch/ob-http.git" :rev :newest)
-  :after org
-  :demand t)
-
-;;;; Биндинги
 
 (el-leader!
   "x"     '(org-capture :which-key "capture")
@@ -161,6 +134,6 @@ org repository cannot break the configuration."
   "n c i" '(org-clock-in :which-key "clock in")
   "n c o" '(org-clock-out :which-key "clock out")
   "n c g" '(org-clock-goto :which-key "goto clock")
-  "b c"   '(el-org-polybar-clock-line :which-key "polybar clock line"))
+  "n c c" '(my/org-clock-show-active :which-key "polybar clock line"))
 
 (provide 'init-org)

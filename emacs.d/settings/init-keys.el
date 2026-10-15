@@ -1,16 +1,9 @@
 ;; -*- lexical-binding: t; -*-
-;;; init-keys.el --- Modal editing and the leader dictionary
-
-;;; Code:
 
 (require 'init-core)
 
-
-;;;; Evil
-
 (use-package evil
   :init
-  ;; Должно быть до загрузки evil, иначе evil-collection бессилен.
   (setq evil-want-keybinding nil
         evil-want-integration t
         evil-want-C-u-scroll t
@@ -25,6 +18,17 @@
   :config
   (evil-collection-init))
 
+
+(with-eval-after-load 'evil
+  (evil-define-operator el-comment-or-uncomment (beg end)
+    "Toggle comments between BEG and END."
+    :move-point nil
+    (comment-or-uncomment-region beg end))
+
+  (evil-define-key '(normal visual) 'global
+    "gc" #'el-comment-or-uncomment))
+
+
 (use-package evil-surround
   :after evil
   :config
@@ -37,8 +41,6 @@
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
 
-
-;;;; Леадер
 
 (use-package general
   :demand t
@@ -54,29 +56,23 @@
 (which-key-mode 1)
 (setq which-key-idle-delay 0.3)
 
-
-;;;; Ядро словаря
-;; Предметные биндинги (org, denote, gptel, eww, docker) объявляются
-;; в своих модулях — здесь только то, что не принадлежит ни одному.
-
 (el-leader!
   "SPC" '(project-find-file :which-key "find file in project")
   ":"   '(execute-extended-command :which-key "M-x")
   "/"   '(consult-ripgrep :which-key "search project")
   ","   '(consult-buffer :which-key "switch buffer")
   "u"   '(universal-argument :which-key "universal arg")
+  "."   '(dired-jump :which-key "dired jump")
 
   "f"   '(:ignore t :which-key "file")
   "f f" '(find-file :which-key "find file")
   "f s" '(save-buffer :which-key "save")
   "f S" '(write-file :which-key "save as")
   "f r" '(recentf-open-files :which-key "recent")
-  "f p" '(el-find-config-file :which-key "find config file")
 
   "b"   '(:ignore t :which-key "buffer/bookmark")
   "b b" '(consult-buffer :which-key "switch buffer")
   "b k" '(kill-current-buffer :which-key "kill buffer")
-  "b i" '(consult-imenu :which-key "imenu")
   "b r" '(revert-buffer :which-key "revert")
 
   "w"   '(:keymap evil-window-map :which-key "window")
@@ -94,13 +90,6 @@
   "q"   '(:ignore t :which-key "quit")
   "q q" '(save-buffers-kill-terminal :which-key "quit")
   "q r" '(restart-emacs :which-key "restart"))
-
-
-(defun el-find-config-file ()
-  "Open a file from the Emacs configuration directory."
-  (interactive)
-  (let ((default-directory user-emacs-directory))
-    (call-interactively #'find-file)))
 
 
 (unless (termux-p)

@@ -1,8 +1,4 @@
 ;; -*- lexical-binding: t; -*-
-;;; init.el --- Entry point: bootstrap and load order only
-
-;;; Code:
-
 (require 'package)
 
 (setq package-archives
@@ -24,11 +20,20 @@
 (dolist (dir '("elisp" "settings"))
   (add-to-list 'load-path (expand-file-name dir user-emacs-directory)))
 
-;; (require 'el-boot)
+(let ((default-directory (expand-file-name "elisp" user-emacs-directory)))
+  (normal-top-level-add-subdirs-to-load-path))
 
-;; Шимы для функций, которых нет в этой сборке Emacs: нужны до загрузки
-;; любого модуля, потому что их вызывают vertico и corfu.
-(require 'el-compat)
+(defvar el-compat-shimmed nil)
+(unless (fboundp 'set-local)
+  (defun set-local (variable value)
+    "Make VARIABLE buffer local and set it to VALUE."
+    (set (make-local-variable variable) value))
+  (push 'set-local el-compat-shimmed))
+
+(require 'denote-extras)
+(require 'logbook-table)
+(require 'open-meteo)
+(require 'ob-search)
 
 (require 'init-core)
 (require 'init-keys)
@@ -39,31 +44,8 @@
 (require 'init-ai)
 (require 'init-tools)
 (require 'init-apps)
-(require 'init-local)
-
 
 (if (termux-p)
   (require 'mobile)
   (require 'desktop))
 
-;; (el-require-modules
-;;  'core
-;;  'keys
-;;  'completion
-;;  'ui
-;;  'org
-;;  'denote
-;;  'ai
-;;  'tools
-;;  'apps
-;;  'local)
-
-;; (el-require-module
-;;  (if (and (fboundp 'termux-p) (el-termux-p)) 'mobile 'desktop))
-
-;; (when el-failed-modules
-;;   (message "[el] %d module(s) failed: %S"
-;;            (length el-failed-modules)
-;;            (mapcar #'car el-failed-modules)))
-
-;;; init.el ends here
