@@ -559,8 +559,6 @@
 (add-to-list 'load-path (expand-file-name "lisp/open-meteo" workspace-dir))
 (require 'open-meteo)
 
-(load-file (expand-file-name "eshell.el" emacs-dir))
-
 (if (termux-p)
     (load-file (expand-file-name "mobile.el" emacs-dir))
     (load-file (expand-file-name "desktop.el" emacs-dir)))
