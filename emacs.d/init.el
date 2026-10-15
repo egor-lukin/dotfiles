@@ -1,13 +1,6 @@
 ;; -*- lexical-binding: t; -*-
 ;;; init.el --- Entry point: bootstrap and load order only
 
-;;; Commentary:
-;; Здесь нет настройки пакетов — только подключение архивов, use-package,
-;; load-path и порядок загрузки модулей.  Порядок не произвольный:
-;; el-core определяет пути, от которых зависят остальные модули;
-;; el-keys создаёт el-leader!, без которого модули не могут вешать биндинги;
-;; платформенный модуль идёт последним, чтобы мог переопределять всё выше.
-
 ;;; Code:
 
 (require 'package)
@@ -28,7 +21,7 @@
       use-package-always-defer nil
       use-package-expand-minimally t)
 
-(dolist (dir '("lib" "settings"))
+(dolist (dir '("elisp" "settings"))
   (add-to-list 'load-path (expand-file-name dir user-emacs-directory)))
 
 ;; (require 'el-boot)
