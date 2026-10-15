@@ -402,7 +402,7 @@
    denote-prompts '(title keywords subdirectory))
   (denote-rename-buffer-mode 1))
 
-(add-to-list 'load-path (expand-file-name "lisp/denote-extras" workspace-dir))
+(add-to-list 'load-path (expand-file-name "emacs.d/elisp/denote-extras" workspace-dir))
 (require 'denote-extras)
 
 (map! :leader
@@ -506,7 +506,7 @@
           (set-buffer-modified-p nil))))))
 
 
-(add-to-list 'load-path (expand-file-name "lisp/org-babel-search" workspace-dir))
+(add-to-list 'load-path (expand-file-name "emacs.d/elisp/org-babel-search" workspace-dir))
 
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -553,10 +553,10 @@
       (:desc "switch-to-buffer" "," #'switch-to-buffer))
 
  ;; load additonal scripts
-(add-to-list 'load-path (expand-file-name "lisp/logbook-table" workspace-dir))
+(add-to-list 'load-path (expand-file-name "emacs.d/elisp/logbook-table" workspace-dir))
 (require 'logbook-table)
 
-(add-to-list 'load-path (expand-file-name "lisp/open-meteo" workspace-dir))
+(add-to-list 'load-path (expand-file-name "emacs.d/elisp/open-meteo" workspace-dir))
 (require 'open-meteo)
 
 (if (termux-p)

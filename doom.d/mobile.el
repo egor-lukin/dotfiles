@@ -1,5 +1,5 @@
 ;; -*- lexical-binding: t; -*-
-(add-to-list 'load-path (expand-file-name "lisp/org-mobile-mode" workspace-dir))
+(add-to-list 'load-path (expand-file-name "emacs.d/elisp/org-mobile-mode" workspace-dir))
 
 (setq org-agenda-prefix-format
       '((agenda . " ")))

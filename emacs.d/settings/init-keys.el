@@ -82,15 +82,7 @@
   "s s" '(consult-line :which-key "line")
   "s p" '(consult-ripgrep :which-key "project")
   "s d" '(consult-fd :which-key "find file by name")
-
-  "t"   '(:ignore t :which-key "toggle")
-  "t l" '(display-line-numbers-mode :which-key "line numbers")
-  "t w" '(visual-line-mode :which-key "visual line")
-
-  "q"   '(:ignore t :which-key "quit")
-  "q q" '(save-buffers-kill-terminal :which-key "quit")
-  "q r" '(restart-emacs :which-key "restart"))
-
+  )
 
 (unless (termux-p)
   (setq x-super-keysym 'meta))

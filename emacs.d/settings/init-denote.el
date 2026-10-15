@@ -29,7 +29,6 @@
 
 (advice-add 'org-agenda :before #'my/denote-journal-ensure-agenda-entry)
 
-
 (el-leader!
   "d"   '(:ignore t :which-key "denote")
   "d n" '(denote :which-key "denote")

@@ -5,8 +5,8 @@
 
 ;; External links go to the system browser; eww stays available on demand
 ;; (`C-u' before a link-following command, plus the SPC e bindings below).
-(setq browse-url-browser-function #'browse-url-default-browser
-      browse-url-secondary-browser-function #'eww-browse-url)
+(setq browse-url-browser-function #'eww-browse-url
+      browse-url-secondary-browser-function #'browse-url-default-browser)
 
 (el-leader!
   "e"   '(:ignore t :which-key "eww")
