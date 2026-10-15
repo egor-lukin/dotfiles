@@ -68,7 +68,7 @@ created in place."
   "Copy a debugger break location for the current line to the kill ring."
   (interactive)
   (let* ((file (or (buffer-file-name) (user-error "Buffer is not visiting a file")))
-         (root (when-let ((project (project-current))) (project-root project)))
+         (root (when-let* ((project (project-current))) (project-root project)))
          (relative (if root (file-relative-name file root) file))
          (text (el-project-break-string relative (line-number-at-pos))))
     (kill-new text)
