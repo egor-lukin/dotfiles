@@ -40,7 +40,12 @@
 ;;;; Шифрование
 
 (require 'epa-file)
-(epa-file-enable)
+
+;; auto-encryption-mode включён по умолчанию с Emacs 29; повторный
+;; epa-file-enable только печатает предупреждение при каждом старте.
+(unless (bound-and-true-p auto-encryption-mode)
+  (auto-encryption-mode 1))
+
 (setq epa-file-encrypt-to user-mail-address
       epg-pinentry-mode 'loopback)
 
