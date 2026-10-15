@@ -105,10 +105,15 @@
     (call-interactively #'find-file)))
 
 
-;;;; X11-специфичное
+;;;; Модификаторы
 
-;; Review Focus 4: под Termux и Wayland этого делать нельзя.
-(when (and (eq window-system 'x) (not (el-termux-p)))
+;; keyd (см. dotfiles/keyd.conf) превращает левый Alt в leftmeta, то есть
+;; физическая клавиша Alt посылает Super.  Без этого M-x недостижим: Alt+x
+;; приходит как s-x.  Условие только на Termux: проверять window-system
+;; нельзя — при загрузке конфига в daemon-режиме фрейма ещё нет и она nil,
+;; из-за чего настройка молча не применялась бы к emacsclient.  Под Wayland
+;; переменная просто не используется.
+(unless (el-termux-p)
   (setq x-super-keysym 'meta))
 
 (provide 'el-keys)
