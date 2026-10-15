@@ -44,48 +44,8 @@
 (setq epa-file-encrypt-to user-mail-address)
 (setq epg-pinentry-mode 'loopback)
 
-(defun my/epa-dired-do-encrypt-with-same-recipients ()
-  "Encrypt marked files."
-  (interactive)
-  (let (keys (epa-select-keys (epg-make-context) "Select recipients for encryption.
-If no one is selected, symmetric encryption will be performed.  "))
-    (dolist (file (dired-get-marked-files))
-      (epa-encrypt-file
-       (expand-file-name file)
-       keys
-       ))
-    (revert-buffer)))
-
-(defun my/epa-dired-do-encrypt ()
-  "Encrypt marked files, selecting recipients once for all files."
-  (interactive)
-  (let* ((ctx (epg-make-context))
-         (keys (epa-select-keys
-                ctx
-                "Select recipients for encryption.
-If none are selected, symmetric encryption will be performed.")))
-    (dolist (file (dired-get-marked-files))
-      (epa-encrypt-file
-       (expand-file-name file)
-       keys))
-    (revert-buffer)))
-
-
  ;; Org Mode / GTD
 (setq org-use-fast-todo-selection t)
-
-(defun org--photos-list ()
-  (let* ((date (string-replace "-" "" (org-read-date)))
-         (photos-path "~/photos/mobile/DCIM/Camera/")
-         (command (concat "ls " photos-path " | grep " date))
-         (photo-paths (split-string (shell-command-to-string command) "\n")))
-    (seq-reduce
-     (lambda (acc time)
-       (if (not (string-blank-p time))
-           (concat acc "\n"
-                   "#+attr_html: :width 750px\n"
-                   "[[file:" photos-path time "][" time "]" "]") acc))
-     photo-paths "")))
 
 (defun org-insert-photos ()
   (interactive)
@@ -128,13 +88,6 @@ If none are selected, symmetric encryption will be performed.")))
 (map! :leader
       :prefix "b"
       :desc "polybar-current-clock-line" "c" #'polybar-current-clock-line)
-
-(defun gtd/org-file-has-project-tag-p (file)
-  "Return non-nil if FILE contains #+FILETAGS with :project:."
-  (with-temp-buffer
-    (insert-file-contents file nil 0 5000) ; read first 5000 chars, enough for header
-    (goto-char (point-min))
-    (re-search-forward "^#\\+FILETAGS:.*:project:" nil t)))
 
 (after! org
   (require 'org-habit)
@@ -217,21 +170,6 @@ If none are selected, symmetric encryption will be performed.")))
 (after! elfeed
   (setq elfeed-search-filter "@1-month-ago +unread")
   (setq elfeed-db-directory "~/elfeed.db"))
-
-
- ;; OpenWith
-(require 'openwith)
-(openwith-mode t)
-(setq openwith-associations
-            (list
-             (list (openwith-make-extension-regexp
-                    '("mpg" "mpeg" "mp3" "mp4"
-                      "avi" "wmv" "wav" "mov" "flv"
-                      "ogm" "ogg" "mkv"))
-                   "vlc"
-                   '(file))
-             '("\\.djvu" "evince" (file))
-             ))
 
 
  ;; Ledger
@@ -348,7 +286,7 @@ If none are selected, symmetric encryption will be performed.")))
     :endpoint "/api/v1/chat/completions"
     :stream t
     :key (lambda () (password-store-get "env/OPENROUTER_API_KEY"))
-    :models '(openrouter/free
+    :models '((openrouter/free :capabilities (media tool-use))
               openai/gpt-3.5-turbo
               z-ai/glm-5
               openai/gpt-5.1-chat
@@ -363,7 +301,7 @@ If none are selected, symmetric encryption will be performed.")))
 (gptel-make-preset 'assistant
   :description "Universal assistant"
   :backend "OpenRouter"
-  :model 'deepseek/deepseek-v4-flash
+  :model 'openrouter/free
   :use-context 'system
   :context '("~/org/prompts/assistant.org")
   :temperature 0.0)
@@ -371,7 +309,7 @@ If none are selected, symmetric encryption will be performed.")))
 (gptel-make-preset 'english-cards
   :description "Preset for generating english cards"
   :backend "OpenRouter"
-  :model 'deepseek/deepseek-v4-flash
+  :model 'openrouter/free
   :use-context 'system
   :context '("~/org/prompts/english-words.org")
   :temperature 0.1)
@@ -441,16 +379,6 @@ If none are selected, symmetric encryption will be performed.")))
       :desc "Gptel rewrite" "r" #'gptel-rewrite
       :desc "Gptel clean context" "c" #'gptel-context-remove-all
       :desc "Gptel rewrite buffer" "b" #'my/gptel-rewrite-buffer)
-
-(use-package ob-gptel
-  :hook ((org-mode . ob-gptel-install-completions))
-  :defines ob-gptel-install-completions
-  :config
-  (add-to-list 'org-babel-load-languages '(gptel . t))
-  ;; Optional, for better completion-at-point
-  (defun ob-gptel-install-completions ()
-    (add-hook 'completion-at-point-functions
-              'ob-gptel-capf nil t)))
 
  ;; World Clock
 (setq world-clock-list
@@ -578,9 +506,12 @@ If none are selected, symmetric encryption will be performed.")))
           (set-buffer-modified-p nil))))))
 
 
+(add-to-list 'load-path (expand-file-name "lisp/org-babel-search" workspace-dir))
+
 (org-babel-do-load-languages
  'org-babel-load-languages
- '((http . t)))
+ '((http . t)
+   (search . t)))
 
 (defun my-break-location-copy ()
   "Copy break file_path:line_number to clipboard."
@@ -624,6 +555,11 @@ If none are selected, symmetric encryption will be performed.")))
  ;; load additonal scripts
 (add-to-list 'load-path (expand-file-name "lisp/logbook-table" workspace-dir))
 (require 'logbook-table)
+
+(add-to-list 'load-path (expand-file-name "lisp/open-meteo" workspace-dir))
+(require 'open-meteo)
+
+(load-file (expand-file-name "eshell.el" emacs-dir))
 
 (if (termux-p)
     (load-file (expand-file-name "mobile.el" emacs-dir))
