@@ -23,12 +23,9 @@
 (let ((default-directory (expand-file-name "elisp" user-emacs-directory)))
   (normal-top-level-add-subdirs-to-load-path))
 
-(defvar el-compat-shimmed nil)
-(unless (fboundp 'set-local)
-  (defun set-local (variable value)
-    "Make VARIABLE buffer local and set it to VALUE."
-    (set (make-local-variable variable) value))
-  (push 'set-local el-compat-shimmed))
+(require 'compat)
+(when (version< emacs-version "31.1")
+  (require 'compat-31))
 
 (require 'denote-extras)
 (require 'logbook-table)
