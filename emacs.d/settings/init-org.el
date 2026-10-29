@@ -8,7 +8,7 @@
   :config
   (require 'org-habit)
   (setq org-directory org-dir
-        org-agenda-files '("projects/gtd.org" "projects/events.org" "projects/backlog.org")
+        org-agenda-files '("projects/gtd.org" "projects/events.org" "projects/backlog.org" "projects/routines.org")
         org-log-into-drawer t
         org-log-done t
         org-use-fast-todo-selection t
@@ -53,6 +53,11 @@
                         "buffer")
          (file "templates/buffer.org"))))
 
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (shell . t)
+   (python . t)))
 
 (use-package org-drill
   :vc (:url "https://gitlab.com/phillord/org-drill.git" :rev :newest)
@@ -68,16 +73,20 @@
   :after org
   :demand t)
 
-(el-leader!
-  "x"     '(org-capture :which-key "capture")
-  "t t"   '(org-pomodoro :which-key "org pomodoro")
-  "m"     '(:ignore t :which-key "org")
-  "m a"   '(org-agenda :which-key "agenda")
-  "m t"   '(org-todo :which-key "org todo")
-  "m c"   '(:ignore t :which-key "clock")
-  "m c i" '(org-clock-in :which-key "clock in")
-  "m c o" '(org-clock-out :which-key "clock out")
-  "m c g" '(org-clock-goto :which-key "goto clock")
-  "m c c" '(my/org-clock-show-active :which-key "polybar clock line"))
+(setq org-clock-clocked-in-display "both")
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
+
+;; (el-leader!
+;;   "x"     '(org-capture :which-key "capture")
+;;   "t t"   '(org-pomodoro :which-key "org pomodoro")
+;;   "m"     '(:ignore t :which-key "org")
+;;   "m a"   '(org-agenda :which-key "agenda")
+;;   "m t"   '(org-todo :which-key "org todo")
+;;   "m c"   '(:ignore t :which-key "clock")
+;;   "m c i" '(org-clock-in :which-key "clock in")
+;;   "m c o" '(org-clock-out :which-key "clock out")
+;;   "m c g" '(org-clock-goto :which-key "goto clock")
+;;   "m c c" '(my/org-clock-show-active :which-key "polybar clock line"))
 
 (provide 'init-org)
