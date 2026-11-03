@@ -3,6 +3,21 @@
 (require 'init-core)
 (require 'init-keys)
 
+(defun current-journal-entry-path ()
+  "Return the filepath for the current day's journal entry.
+Format: ~/org/journal/DD-MM-YYYY.org.gpg"
+  (expand-file-name
+   (format-time-string "journal/%Y-%m-%d.org.gpg")
+   "~/org/"))
+
+(defun create-or-open-current-journal-entry ()
+  "Open today's journal entry, creating it if necessary."
+  (interactive)
+  (let ((path (current-journal-entry-path)))
+    (unless (file-exists-p path)
+      (write-region "" nil path))
+    (find-file path)))
+
 (use-package org
   :ensure nil
   :config
@@ -37,19 +52,8 @@
         ("t" "Project Todo" entry
          (file+headline "projects/gtd.org" "inbox")
          (file "templates/todo.org"))
-        ("n" "new note (via denote)" plain
-         (file denote-last-path)
-         (function
-          (lambda ()
-            (let ((denote-use-directory
-                   (read-directory-name "Subdirectory: " (denote-directory))))
-              (denote-org-capture))))
-         :no-save t
-         :immediate-finish nil
-         :kill-buffer t
-         :jump-to-captured t)
         ("b" "temp daily note" entry
-         (file+headline (lambda () (denote-journal-path-to-new-or-existing-entry))
+         (file+headline (lambda () (current-journal-entry-path))
                         "buffer")
          (file "templates/buffer.org"))))
 
@@ -68,25 +72,25 @@
 (use-package org-pomodoro
   :commands (org-pomodoro))
 
-
 (use-package ob-async
   :after org
   :demand t)
 
+(use-package denote
+  :hook (dired-mode . denote-dired-mode)
+  :config
+  (setq denote-directory (expand-file-name org-dir)
+        denote-prompts '(title keywords subdirectory))
+  (denote-rename-buffer-mode 1))
+
 (setq org-clock-clocked-in-display "both")
+
 (global-set-key (kbd "C-c a") #'org-agenda)
 (global-set-key (kbd "C-c c") #'org-capture)
-
-;; (el-leader!
-;;   "x"     '(org-capture :which-key "capture")
-;;   "t t"   '(org-pomodoro :which-key "org pomodoro")
-;;   "m"     '(:ignore t :which-key "org")
-;;   "m a"   '(org-agenda :which-key "agenda")
-;;   "m t"   '(org-todo :which-key "org todo")
-;;   "m c"   '(:ignore t :which-key "clock")
-;;   "m c i" '(org-clock-in :which-key "clock in")
-;;   "m c o" '(org-clock-out :which-key "clock out")
-;;   "m c g" '(org-clock-goto :which-key "goto clock")
-;;   "m c c" '(my/org-clock-show-active :which-key "polybar clock line"))
+(global-set-key (kbd "C-c d j") #'create-or-open-current-journal-entry)
+(global-set-key (kbd "C-c d b") #'denote-backlinks)
+(global-set-key (kbd "C-c d f") #'denote-open-or-create)
+(global-set-key (kbd "C-c d l") #'denote-link)
+(global-set-key (kbd "C-c d i") #'denote-link-after-creating)
 
 (provide 'init-org)

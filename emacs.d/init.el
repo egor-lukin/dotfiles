@@ -37,12 +37,8 @@
 (require 'init-completion)
 (require 'init-ui)
 (require 'init-org)
-(require 'init-denote)
 (require 'init-ai)
 (require 'init-tools)
 (require 'init-apps)
 
-(if (termux-p)
-  (require 'mobile)
-  (require 'desktop))
-
+(require 'desktop)
