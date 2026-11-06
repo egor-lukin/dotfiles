@@ -18,6 +18,17 @@ Format: ~/org/journal/DD-MM-YYYY.org.gpg"
       (write-region "" nil path))
     (find-file path)))
 
+(defun my/org-clock-show-active ()
+  "Report the running clock as a single line."
+  (interactive)
+  (message
+   "%s"
+   (if (org-clocking-p)
+       (format "%s (%d min)"
+        org-clock-heading
+        (floor (org-time-convert-to-integer (time-since org-clock-start-time)) 60))
+     "no active clocks!")))
+
 (use-package org
   :ensure nil
   :config
@@ -92,5 +103,7 @@ Format: ~/org/journal/DD-MM-YYYY.org.gpg"
 (global-set-key (kbd "C-c d f") #'denote-open-or-create)
 (global-set-key (kbd "C-c d l") #'denote-link)
 (global-set-key (kbd "C-c d i") #'denote-link-after-creating)
+
+(global-set-key (kbd "C-c o c") #'my/org-clock-show-active)
 
 (provide 'init-org)
