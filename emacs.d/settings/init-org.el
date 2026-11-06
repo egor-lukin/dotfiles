@@ -72,6 +72,7 @@ Format: ~/org/journal/DD-MM-YYYY.org.gpg"
  'org-babel-load-languages
  '((emacs-lisp . t)
    (shell . t)
+   (ruby . t)
    (python . t)))
 
 (use-package org-drill
@@ -105,5 +106,8 @@ Format: ~/org/journal/DD-MM-YYYY.org.gpg"
 (global-set-key (kbd "C-c d i") #'denote-link-after-creating)
 
 (global-set-key (kbd "C-c o c") #'my/org-clock-show-active)
+(global-set-key (kbd "C-c o i") #'org-clock-in)
+(global-set-key (kbd "C-c o o") #'org-clock-out)
+(global-set-key (kbd "C-c o p") #'org-pomodoro)
 
 (provide 'init-org)
